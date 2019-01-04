@@ -9,6 +9,9 @@
     "start:prod": "NODE_ENV=production node build/server.js"
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "bitbox-sdk": "^2.2.8",
+    "body-parser": "^1.18.3",
     "express": "4.16.4",
     "razzle": "2.4.1",
     "react": "16.7.0",
