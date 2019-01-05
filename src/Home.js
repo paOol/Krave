@@ -6,6 +6,8 @@ class Home extends React.Component {
   state = {
     blockheight: '',
     minNumber: '',
+    username: '',
+    number: '',
     userErr: '',
     numberErr: ''
   };
@@ -28,6 +30,7 @@ class Home extends React.Component {
 
   validateUsername = e => {
     let { value } = e.target;
+    this.setState({ username: value });
     let valid = bcashClass.validateUserName(value);
     if (valid.status !== undefined) {
       this.setState({ userErr: valid.status });
@@ -38,6 +41,7 @@ class Home extends React.Component {
 
   validateNumber = e => {
     let { value } = e.target;
+    this.setState({ number: value });
     let valid = bcashClass.validateNumber(value, this.state.minNumber);
     if (valid.status !== undefined) {
       this.setState({ numberErr: valid.status });
@@ -52,7 +56,14 @@ class Home extends React.Component {
   }
 
   render() {
-    let { blockheight, minNumber, userErr, numberErr } = this.state;
+    let {
+      blockheight,
+      minNumber,
+      userErr,
+      numberErr,
+      username,
+      number
+    } = this.state;
     return (
       <div className="wrapper">
         <div className="container">
@@ -69,7 +80,10 @@ class Home extends React.Component {
             </small>
           </form>
         </div>
-        {userErr === '' && numberErr === '' ? (
+        {username !== '' &&
+        userErr === '' &&
+        number !== '' &&
+        numberErr === '' ? (
           <div className="submit" onClick={this.createAccount}>
             submit
           </div>

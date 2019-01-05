@@ -20,7 +20,8 @@ router.get('/blockheight', (req, res) => {
 });
 
 router.post('/create', jsonParser, (req, res) => {
-  let valid = bcashClass.validateHeight(req.body);
+  let { blockheight, number, username } = req.body;
+  let valid = bcashClass.validateUserName(username);
   console.log('valid', valid);
   return res.status(200).send(valid);
 });

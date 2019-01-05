@@ -6,9 +6,7 @@ class Bcash {
     return diff;
   }
   validateNumber(number, min = null) {
-    console.log('number', number, typeof number, 'min', min);
     let test = parseInt(number);
-    console.log('typeof test', typeof test);
     if (typeof test === NaN) {
       return { status: 'not a valid number' };
     }
@@ -21,9 +19,14 @@ class Bcash {
     return true;
   }
   validateUserName(string) {
+    string = string.trim();
     let regex = /^[_A-z0-9][_A-z0-9]{1,99}$/;
     let symbolRegex = /[~@(`)!#$%\^&*+=\-\[\]\\';,/{}|\\":<>\?]/;
-    console.log('symbolRegex.test(string)', symbolRegex.test(string));
+
+    if (string === '') {
+      return { status: 'empty string' };
+    }
+
     if (!regex.test(string)) {
       if (string.length > 98) {
         return { status: 'must be shorter than 99 characters' };
