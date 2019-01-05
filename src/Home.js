@@ -1,6 +1,6 @@
 import React from 'react';
 const axios = require('axios');
-const bcashClass = require('./classes/bcash').default;
+const transactions = require('./classes/transactions').default;
 
 class Home extends React.Component {
   state = {
@@ -14,7 +14,7 @@ class Home extends React.Component {
 
   getBlockHeight = () => {
     axios.get(`api/blockheight`).then(x => {
-      let minNumber = bcashClass.calculateDiff(x.data.blocks);
+      let minNumber = transactions.calculateDiff(x.data.blocks);
       this.setState({
         blockheight: x.data.blocks,
         minNumber: minNumber
@@ -31,7 +31,7 @@ class Home extends React.Component {
   validateUsername = e => {
     let { value } = e.target;
     this.setState({ username: value });
-    let valid = bcashClass.validateUserName(value);
+    let valid = transactions.validateUserName(value);
     if (valid.status !== undefined) {
       this.setState({ userErr: valid.status });
     } else {
@@ -43,7 +43,7 @@ class Home extends React.Component {
     let { value } = e.target;
     this.setState({ number: value });
     if (value.length > 2) {
-      let valid = bcashClass.validateNumber(value, this.state.minNumber);
+      let valid = transactions.validateNumber(value, this.state.minNumber);
       if (valid.status !== undefined) {
         this.setState({ numberErr: valid.status });
       } else {
@@ -54,7 +54,7 @@ class Home extends React.Component {
 
   componentDidMount() {
     this.getBlockHeight();
-    console.log('bcashClass, bcashClass0', bcashClass);
+    console.log('transactions, transactions0', transactions);
   }
 
   render() {

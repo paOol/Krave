@@ -13,7 +13,7 @@ const bchNode = new bchRPC(
 );
 const genesisBlock = 563720;
 
-class Bcash {
+class Transactions {
   calculateDiff(current) {
     let diff = current - genesisBlock + 101;
     return diff;
@@ -40,9 +40,7 @@ class Bcash {
       return { status: `missing username` };
     }
     let txString = await this.generateTxString(address, username);
-    console.log('txString', txString);
     let hex = await bchNode.signRawTransaction(txString);
-    console.log('hex', hex);
     let txid = await bchNode.sendRawTransaction(hex.hex);
     return txid;
   }
@@ -160,5 +158,5 @@ class Bcash {
   }
 }
 
-let contain = new Bcash();
+let contain = new Transactions();
 export default contain;

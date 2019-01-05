@@ -4,7 +4,7 @@ const axios = require('axios');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
-const bcashClass = require('../classes/bcash').default;
+const transactions = require('../classes/transactions').default;
 
 router.get('/blockheight', (req, res) => {
   try {
@@ -21,10 +21,10 @@ router.get('/blockheight', (req, res) => {
 
 router.post('/create', jsonParser, (req, res) => {
   let { blockheight, number, username } = req.body;
-  let valid = bcashClass.validateUserName(username);
+  let valid = transactions.validateUserName(username);
   console.log('valid', valid);
   if (valid) {
-    let p = bcashClass.createCashAccount(req.body);
+    let p = transactions.createCashAccount(req.body);
     p.then(x => {
       return res.status(200).send(x);
     }).catch(err => {
