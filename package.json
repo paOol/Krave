@@ -6,13 +6,21 @@
     "start": "razzle start",
     "build": "razzle build",
     "test": "razzle test --env=jsdom",
-    "start:prod": "NODE_ENV=production node build/server.js"
+    "start:prod": "NODE_ENV=production node build/server.js",
+    "migrateproduction": "NODE_ENV=production knex migrate:latest"
   },
   "dependencies": {
     "axios": "^0.18.0",
+    "base58check": "^2.0.0",
+    "bchaddrjs": "^0.3.0",
     "bitbox-sdk": "^2.2.8",
+    "bitcoin-cash-rpc": "^0.3.2",
+    "bitcore-lib-cash": "^0.19.0",
     "body-parser": "^1.18.3",
+    "cashaddrjs": "^0.3.2",
     "express": "4.16.4",
+    "knex": "^0.16.3",
+    "pg": "^7.7.1",
     "razzle": "2.4.1",
     "react": "16.7.0",
     "react-dom": "16.7.0",
