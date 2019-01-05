@@ -42,11 +42,13 @@ class Home extends React.Component {
   validateNumber = e => {
     let { value } = e.target;
     this.setState({ number: value });
-    let valid = bcashClass.validateNumber(value, this.state.minNumber);
-    if (valid.status !== undefined) {
-      this.setState({ numberErr: valid.status });
-    } else {
-      this.setState({ numberErr: '' });
+    if (value.length > 2) {
+      let valid = bcashClass.validateNumber(value, this.state.minNumber);
+      if (valid.status !== undefined) {
+        this.setState({ numberErr: valid.status });
+      } else {
+        this.setState({ numberErr: '' });
+      }
     }
   };
 

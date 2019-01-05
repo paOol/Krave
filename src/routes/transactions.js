@@ -23,7 +23,15 @@ router.post('/create', jsonParser, (req, res) => {
   let { blockheight, number, username } = req.body;
   let valid = bcashClass.validateUserName(username);
   console.log('valid', valid);
-  return res.status(200).send(valid);
+  if (valid) {
+    let p = bcashClass.createCashAccount(req.body);
+    p.then(x => {
+      return res.status(200).send(x);
+    }).catch(err => {
+      console.log('err', err);
+      return res.status(500).send(err);
+    });
+  }
 });
 
 router.delete('/examples/:exampleID', (req, res) => {
