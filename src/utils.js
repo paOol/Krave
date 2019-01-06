@@ -11,14 +11,16 @@ class Utils {
       return { status: 'not a valid number' };
     }
     if (test < min) {
-      return { status: `can't choose a past blockheight` };
+      return { status: `that block has been mined already` };
     }
     if (test > min + 200) {
       return { status: `too far into the future` };
     }
     return true;
   }
-  validateBchAddress(address) {}
+  validateBchAddress(address) {
+    return true;
+  }
   validateUserName(string) {
     string = string.trim();
     let regex = /^[_A-z0-9][_A-z0-9]{1,99}$/;

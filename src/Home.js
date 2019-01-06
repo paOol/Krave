@@ -28,8 +28,9 @@ class Home extends React.Component {
   checkAvailability = () => {
     axios.post(`api/check`, this.state).then(x => {
       console.log('x', x);
+      console.log('x.data.success', x.data.success);
       this.setState({
-        jobStatus: x.data.success ? '' : x.data.status
+        jobStatus: x.data.success ? x.data.success : x.data.status
       });
     });
   };
@@ -49,7 +50,7 @@ class Home extends React.Component {
       field = 'address';
       valid = utils.validateBchAddress(value);
     }
-
+    console.log('valid', valid);
     this.setState({ [field]: value });
     if (value.length > 2) {
       if (valid.status !== undefined) {
@@ -108,7 +109,7 @@ class Home extends React.Component {
           ''
         )}
 
-        {jobStatus !== '' ? <div> {jobStatus} </div> : ''}
+        {jobStatus ? <div> true {jobStatus} </div> : ''}
       </div>
     );
   }
