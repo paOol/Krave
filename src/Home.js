@@ -1,10 +1,11 @@
 import React from 'react';
 const axios = require('axios');
-const transactions = require('./classes/transactions').default;
+const utils = require('./utils').default;
 
 class Home extends React.Component {
   state = {
     blockheight: '',
+    address: '',
     minNumber: '',
     username: '',
     number: '',
@@ -14,7 +15,7 @@ class Home extends React.Component {
 
   getBlockHeight = () => {
     axios.get(`api/blockheight`).then(x => {
-      let minNumber = transactions.calculateDiff(x.data.blocks);
+      let minNumber = utils.calculateDiff(x.data.blocks);
       this.setState({
         blockheight: x.data.blocks,
         minNumber: minNumber
@@ -31,7 +32,7 @@ class Home extends React.Component {
   validateUsername = e => {
     let { value } = e.target;
     this.setState({ username: value });
-    let valid = transactions.validateUserName(value);
+    let valid = utils.validateUserName(value);
     if (valid.status !== undefined) {
       this.setState({ userErr: valid.status });
     } else {
@@ -43,7 +44,7 @@ class Home extends React.Component {
     let { value } = e.target;
     this.setState({ number: value });
     if (value.length > 2) {
-      let valid = transactions.validateNumber(value, this.state.minNumber);
+      let valid = utils.validateNumber(value, this.state.minNumber);
       if (valid.status !== undefined) {
         this.setState({ numberErr: valid.status });
       } else {
@@ -54,7 +55,6 @@ class Home extends React.Component {
 
   componentDidMount() {
     this.getBlockHeight();
-    console.log('transactions, transactions0', transactions);
   }
 
   render() {
@@ -72,10 +72,10 @@ class Home extends React.Component {
           <form>
             <label for="username">Desired Username</label>
             <input onChange={this.validateUsername} id="username" type="text" />
-            {userErr && <div className="error"> {userErr}</div>}
+            {userErr && <aside className="error"> {userErr}</aside>}
             <label for="number">Desired number</label>
             <input onChange={this.validateNumber} id="number" type="number" />
-            {numberErr && <div className="error"> {numberErr}</div>}
+            {numberErr && <aside className="error"> {numberErr}</aside>}
             <small>
               Note: only cash accounts between #{minNumber} and #
               {minNumber + 200} are available
