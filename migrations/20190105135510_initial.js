@@ -4,9 +4,10 @@ exports.up = function(knex, Promise) {
       table.increments('id').primary();
       table.string('username');
       table.string('address');
+      table.string('number');
       table.integer('blockheight');
       table.string('txid');
-      table.boolean('completed');
+      table.boolean('completed').defaultTo(false);
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('modified_at').defaultTo(knex.fn.now());
     })
@@ -14,7 +15,5 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-  return Promise.all([
-    knex.schema.dropTable('Jobs')
-  ]);
+  return Promise.all([knex.schema.dropTable('Jobs')]);
 };
