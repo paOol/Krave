@@ -4,6 +4,9 @@ const base58check = require('base58check');
 const cashaddr = require('cashaddrjs');
 const bchaddr = require('bchaddrjs');
 
+const config = require('../../knexfile.js');
+const knex = require('knex')(config);
+
 const bchNode = new bchRPC(
   process.env.RAZZLE_NODE_HOST,
   process.env.RAZZLE_NODE_USERNAME,
@@ -14,7 +17,9 @@ const bchNode = new bchRPC(
 const genesisBlock = 563720;
 
 class Transactions {
-  calculateDiff(current) {
+  async calculateDiff(current) {
+    let currentHeight = await bchNode.getBlockCount();
+
     let diff = current - genesisBlock + 101;
     return diff;
   }
@@ -32,13 +37,11 @@ class Transactions {
     return true;
   }
   async createCashAccount(body) {
-    let { address, blockheight, number, username } = body;
-    if (address === undefined) {
-      return { status: `missing address` };
+    let status = this.validateBody(body);
+    if (!status) {
+      return status;
     }
-    if (username === undefined) {
-      return { status: `missing username` };
-    }
+
     let txString = await this.generateTxString(address, username);
     let hex = await bchNode.signRawTransaction(txString);
     let txid = await bchNode.sendRawTransaction(hex.hex);
@@ -87,6 +90,76 @@ class Transactions {
   }
   validateCashAccount(string) {
     let regex = /^([a-zA-Z0-9_]+)(#([0-9]+)(\.([0-9]+))?)?/;
+  }
+
+  async validateBody(body) {
+    console.log('body', body);
+    let { address, blockheight, number, username, minNumber } = body;
+    number = parseInt(number);
+
+    let currentHeight = await bchNode.getBlockCount();
+    //currentHeight = 564173;
+    let diff = currentHeight - genesisBlock + 101;
+    console.log('diff', diff);
+
+    if (address === undefined || address === '') {
+      return { success: false, status: `missing address` };
+    }
+    if (username === undefined) {
+      return { success: false, status: `missing username` };
+    }
+
+    if (blockheight !== currentHeight) {
+      return { success: false, status: `blockheight for #${diff} expired` };
+    }
+
+    if (number < minNumber) {
+      return { success: false, status: `that block has been mined already` };
+    }
+
+    return { success: true };
+  }
+
+  async checkJob(body) {
+    const maxLimit = 3;
+    let status = await this.validateBody(body);
+    if (!status.success) {
+      return status;
+    }
+    const count = await knex('Jobs')
+      .where({
+        blockheight: body.blockheight
+      })
+      .then(x => {
+        return x.length;
+      });
+    console.log('count', count);
+    if (count >= maxLimit) {
+      return {
+        success: false,
+        status: `too many queued jobs for #${body.number}`
+      };
+    } else {
+      return { success: true };
+    }
+  }
+
+  async addJob(body) {
+    let status = await this.validateBody(body);
+    if (!status.success) {
+      return status;
+    }
+    console.log('status', status);
+    return knex('Jobs')
+      .insert({
+        username: body.username,
+        address: body.address,
+        number: body.number,
+        blockheight: body.blockheight
+      })
+      .catch(er => {
+        console.log('error inserting job', er);
+      });
   }
 
   build_script(alias) {

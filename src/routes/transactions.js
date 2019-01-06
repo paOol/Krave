@@ -34,6 +34,26 @@ router.post('/create', jsonParser, (req, res) => {
   }
 });
 
+router.post('/job', jsonParser, (req, res) => {
+  let p = transactions.addJob(req.body);
+  p.then(x => {
+    return res.status(200).send(x);
+  }).catch(err => {
+    console.log('err', err);
+    return res.status(500).send(err);
+  });
+});
+
+router.post('/check', jsonParser, (req, res) => {
+  let p = transactions.checkJob(req.body);
+  p.then(x => {
+    return res.status(200).send(x);
+  }).catch(err => {
+    console.log('err', err);
+    return res.status(500).send(err);
+  });
+});
+
 router.delete('/examples/:exampleID', (req, res) => {
   console.log('delete test');
   return res.status(200).send('test');

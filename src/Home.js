@@ -9,8 +9,10 @@ class Home extends React.Component {
     minNumber: '',
     username: '',
     number: '',
-    userErr: '',
-    numberErr: ''
+    usernameErr: '',
+    numberErr: '',
+    addressErr: '',
+    jobStatus: ''
   };
 
   getBlockHeight = () => {
@@ -23,32 +25,37 @@ class Home extends React.Component {
     });
   };
 
-  createAccount = () => {
-    axios.post(`api/create`, this.state).then(x => {
+  checkAvailability = () => {
+    axios.post(`api/check`, this.state).then(x => {
       console.log('x', x);
+      this.setState({
+        jobStatus: x.data.success ? '' : x.data.status
+      });
     });
   };
 
-  validateUsername = e => {
-    let { value } = e.target;
-    this.setState({ username: value });
-    let valid = utils.validateUserName(value);
-    if (valid.status !== undefined) {
-      this.setState({ userErr: valid.status });
-    } else {
-      this.setState({ userErr: '' });
+  validateForm = e => {
+    let { value, id } = e.target;
+    let valid, field;
+    if (id === 'username') {
+      field = 'username';
+      valid = utils.validateUserName(value);
     }
-  };
+    if (id === 'number') {
+      field = 'number';
+      valid = utils.validateNumber(value, this.state.minNumber);
+    }
+    if (id === 'address') {
+      field = 'address';
+      valid = utils.validateBchAddress(value);
+    }
 
-  validateNumber = e => {
-    let { value } = e.target;
-    this.setState({ number: value });
+    this.setState({ [field]: value });
     if (value.length > 2) {
-      let valid = utils.validateNumber(value, this.state.minNumber);
       if (valid.status !== undefined) {
-        this.setState({ numberErr: valid.status });
+        this.setState({ [`${field}Err`]: valid.status });
       } else {
-        this.setState({ numberErr: '' });
+        this.setState({ [`${field}Err`]: '' });
       }
     }
   };
@@ -61,37 +68,47 @@ class Home extends React.Component {
     let {
       blockheight,
       minNumber,
-      userErr,
+      usernameErr,
       numberErr,
+      addressErr,
       username,
-      number
+      number,
+      address,
+      jobStatus
     } = this.state;
     return (
       <div className="wrapper">
         <div className="container">
           <form>
             <label for="username">Desired Username</label>
-            <input onChange={this.validateUsername} id="username" type="text" />
-            {userErr && <aside className="error"> {userErr}</aside>}
+            <input onChange={this.validateForm} id="username" type="text" />
+            {usernameErr && <aside className="error"> {usernameErr}</aside>}
             <label for="number">Desired number</label>
-            <input onChange={this.validateNumber} id="number" type="number" />
+            <input onChange={this.validateForm} id="number" type="number" />
             {numberErr && <aside className="error"> {numberErr}</aside>}
             <small>
               Note: only cash accounts between #{minNumber} and #
               {minNumber + 200} are available
             </small>
+            <label for="address">Your BCH address</label>
+            <input onChange={this.validateForm} id="address" type="text" />
+            {addressErr && <aside className="error"> {addressErr}</aside>}
           </form>
         </div>
         {username !== '' &&
-        userErr === '' &&
+        usernameErr === '' &&
+        address !== '' &&
+        addressErr === '' &&
         number !== '' &&
         numberErr === '' ? (
-          <div className="submit" onClick={this.createAccount}>
-            submit
+          <div className="submit" onClick={this.checkAvailability}>
+            check
           </div>
         ) : (
           ''
         )}
+
+        {jobStatus !== '' ? <div> {jobStatus} </div> : ''}
       </div>
     );
   }
