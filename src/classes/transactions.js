@@ -60,10 +60,11 @@ class Transactions {
       return { success: false, status: `missing uniqid` };
     }
     let utxo = await bcash.getUTXOsByTX(txid);
+    console.log('txid', txid);
     console.log('utxo', utxo);
-    if (utxo.value < cost) {
-      return { success: false, status: `paid less than the required amount` };
-    }
+    // if (utxo.value < cost) {
+    //   return { success: false, status: `paid less than the required amount` };
+    // }
     let exists = await this.checkExistingTx(txid);
     if (exists.length) {
       return {
