@@ -1,4 +1,4 @@
-# Krave
+# [Krave](https://krave.xyz/)
 
 A React app for scheduled Cash Account registrations.
 
