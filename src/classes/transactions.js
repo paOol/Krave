@@ -183,7 +183,7 @@ class Transactions {
     if (!cheatStatus.success) {
       return cheatStatus;
     }
-    let registerAt = parseInt(body.number) + genesisBlock - 99;
+    let registerAt = parseInt(body.number) + genesisBlock - 100;
 
     return knex('Jobs')
       .insert({
