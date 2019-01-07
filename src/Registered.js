@@ -28,15 +28,16 @@ class Upcoming extends React.Component {
         <h2>Completed Registrations </h2>
         <div className="container">
           {registered.map((x, i) => {
+            let txid = x.registrationtxid.startsWith('{')
+              ? '#'
+              : x.registrationtxid;
             return (
               <div className="account" key={i}>
                 <a
                   className="completed"
                   target="_blank"
                   rel="nofollow"
-                  href={`https://blockchair.com/bitcoin-cash/transaction/${
-                    x.registrationtxid
-                  }`}
+                  href={`https://blockchair.com/bitcoin-cash/transaction/${txid}`}
                 >
                   {`${x.username}#${x.number}`}
                 </a>

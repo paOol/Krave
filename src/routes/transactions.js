@@ -7,7 +7,6 @@ const jsonParser = bodyParser.json();
 const transactions = require('../classes/transactions').default;
 const bcash = require('../classes/bcash').default;
 
-console.log('environment: ', env);
 let url =
   env == 'production'
     ? process.env.RAZZLE_PRODRESTURL

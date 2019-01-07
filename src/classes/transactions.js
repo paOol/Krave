@@ -7,10 +7,10 @@ const bchaddr = require('bchaddrjs');
 const bcash = require('./bcash').default;
 const config = require('../../knexfile.js');
 const knex = require('knex')(config);
-const cost = 800;
+const cost = 800000;
 
 const env = process.env.NODE_ENV || 'development';
-console.log('environment: ', env);
+
 let host =
   env == 'production'
     ? process.env.RAZZLE_PROD_NODE_HOST
