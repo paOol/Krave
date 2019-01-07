@@ -7,7 +7,7 @@ const bchaddr = require('bchaddrjs');
 const bcash = require('./bcash').default;
 const config = require('../../knexfile.js');
 const knex = require('knex')(config);
-const cost = 800000;
+const cost = 800;
 
 const env = process.env.NODE_ENV || 'development';
 console.log('environment: ', env);
@@ -232,8 +232,11 @@ class Transactions {
     const currentHeight = await bchNode.getBlockCount();
     const jobs = await this.getUncompletedJobs();
     for (const each of jobs) {
+      // if (each.blockheight == currentHeight + 2) {
+      //   console.log('upcoming job', each);
+      // }
       if (each.blockheight == currentHeight + 1) {
-        console.log('this job is coming up', each);
+        console.log('registering', each);
         if (each.paidwithtxid !== undefined || each.paidwithtxid !== null) {
           let txid = await this.createCashAccount(each);
           console.log('registered', txid);

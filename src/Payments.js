@@ -7,7 +7,7 @@ import uniqid from 'uniqid';
 const BITBOXSDK = require('bitbox-sdk/lib/bitbox-sdk').default;
 const BITBOX = new BITBOXSDK();
 var socket;
-let cost = 800000;
+let cost = 800;
 
 class Payments extends React.Component {
   state = {
