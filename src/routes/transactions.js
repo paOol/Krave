@@ -5,6 +5,7 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
 const transactions = require('../classes/transactions').default;
+const bcash = require('../classes/bcash').default;
 
 router.get('/blockheight', (req, res) => {
   try {
@@ -19,19 +20,14 @@ router.get('/blockheight', (req, res) => {
   }
 });
 
-router.post('/create', jsonParser, (req, res) => {
-  let { blockheight, number, username } = req.body;
-  let valid = transactions.validateUserName(username);
-  console.log('valid', valid);
-  if (valid) {
-    let p = transactions.createCashAccount(req.body);
-    p.then(x => {
-      return res.status(200).send(x);
-    }).catch(err => {
-      console.log('err', err);
-      return res.status(500).send(err);
-    });
-  }
+router.get('/jobs', (req, res) => {
+  let p = transactions.getJobs();
+  p.then(x => {
+    return res.status(200).send(x);
+  }).catch(err => {
+    console.log('err', err);
+    return res.status(500).send(err);
+  });
 });
 
 router.post('/job', jsonParser, (req, res) => {
@@ -48,6 +44,18 @@ router.post('/check', jsonParser, (req, res) => {
   let p = transactions.checkJob(req.body);
   p.then(x => {
     return res.status(200).send(x);
+  }).catch(err => {
+    console.log('err', err);
+    return res.status(500).send(err);
+  });
+});
+
+router.post('/address', jsonParser, (req, res) => {
+  let { uniqid } = req.body;
+  let p = bcash.createWalletAccount(uniqid);
+  p.then(x => {
+    console.log('addr data', x);
+    return res.status(200).send(x.receiveAddress);
   }).catch(err => {
     console.log('err', err);
     return res.status(500).send(err);
