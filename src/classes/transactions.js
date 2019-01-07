@@ -9,8 +9,14 @@ const config = require('../../knexfile.js');
 const knex = require('knex')(config);
 const cost = 800000;
 
+console.log('environment: ', env);
+let host =
+  env == production
+    ? process.env.RAZZLE_PROD_NODE_HOST
+    : process.env.RAZZLE_NODE_HOST;
+
 const bchNode = new bchRPC(
-  process.env.RAZZLE_NODE_HOST,
+  host,
   process.env.RAZZLE_NODE_USERNAME,
   process.env.RAZZLE_NODE_PASSWORD,
   process.env.RAZZLE_NODE_PORT,

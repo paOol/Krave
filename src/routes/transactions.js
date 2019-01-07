@@ -7,13 +7,17 @@ const jsonParser = bodyParser.json();
 const transactions = require('../classes/transactions').default;
 const bcash = require('../classes/bcash').default;
 
+console.log('environment: ', env);
+let url =
+  env == production
+    ? process.env.RAZZLE_PRODRESTURL
+    : process.env.RAZZLE_RESTURL;
+
 router.get('/blockheight', (req, res) => {
   try {
-    return axios
-      .get(`${process.env.RAZZLE_RESTURL}/v1/control/getInfo`)
-      .then(x => {
-        return res.status(200).send({ blocks: x.data.blocks });
-      });
+    return axios.get(`${url}/v1/control/getInfo`).then(x => {
+      return res.status(200).send({ blocks: x.data.blocks });
+    });
   } catch (e) {
     console.log('err', e);
     return res.status(500).send(e);
