@@ -1,7 +1,18 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,500,600');
 html {
   text-rendering: optimizeLegibility;
-  background: #f1f3f4;
+  //  background: #482392;
+  background: #41295a; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to left,
+    #482392,
+    #41295a
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to left,
+    #482392,
+    #41295a
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 body {
   margin: 0;
@@ -10,11 +21,33 @@ body {
 }
 .container {
   max-width: 600px;
-  margin: 0 auto;
+  margin: 3rem auto;
 }
 input {
   border-radius: 5px;
   padding: 0.5rem 0.3rem;
+}
+p,
+a,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+form,
+label {
+  color: #ffffff;
+}
+
+h3 {
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.8rem;
+}
+h3,
+form {
+  margin-bottom: 6rem;
 }
 
 .wrapper {
@@ -26,6 +59,11 @@ form {
   display: grid;
   grid-template-columns: 200px 1fr;
   grid-gap: 1rem;
+}
+input {
+  color: #ffffff;
+  background-color: #6b4ea5;
+  border: none;
 }
 label {
   grid-column: 1 / 2;
@@ -41,10 +79,65 @@ input,
 button {
   grid-column: 2 / 3;
 }
+aside.error {
+  grid-column: 2 / 3;
+  text-align: right;
+  color: #e48720;
+}
+.success {
+}
 .submit {
   margin: 2rem auto;
+  font-size: 18px;
+  font-weight: 500;
   display: block;
-  max-width: 150px;
+  color: #ffffff;
+  max-width: 140px;
+  background: #1c0c4e;
+  border-radius: 5px;
+  text-align: center;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgba(221, 221, 221, 0.2);
+  border-image: initial;
+  border-radius: 4px;
+  padding: 16px;
+  cursor: pointer;
+}
+.submit:hover {
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 8px 20px;
+  transition: all 0.2s ease-out 0s;
+}
+.submit p {
+  margin: 0;
+  padding: 0;
+}
+.centered {
+  text-align: center;
+  margin: 0 auto;
+}
+.account {
+  color: #ea86b3;
+  font-size: 1.4rem;
+  margin-bottom: 0.4rem;
+}
+svg {
+  display: block;
+  margin: 2rem auto;
+}
+.qr a {
+  display: block;
+  font-size: 2rem;
+  text-decoration: none;
+  font-style: italic;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+span {
+  cursor: pointer;
+  color: #2296ff;
+  font-size: 1.2rem;
 }
 @media (min-width: 2000px) {
   .wrapper {
@@ -56,5 +149,9 @@ button {
   .wrapper {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+
+  form {
+    grid-template-columns: 145px 1fr;
   }
 }
