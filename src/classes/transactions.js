@@ -183,7 +183,7 @@ class Transactions {
     if (!cheatStatus.success) {
       return cheatStatus;
     }
-    let registerAt = parseInt(body.number) + genesisBlock - 100;
+    const registerAt = parseInt(body.number) + genesisBlock - 100;
 
     return knex('Jobs')
       .insert({
@@ -195,6 +195,11 @@ class Transactions {
         blockheight: registerAt
       })
       .then(x => {
+        delete body.jobs;
+        delete body.usernameErr;
+        delete body.numberErr;
+        delete body.addressErr;
+        delete body.success;
         console.log('job added for', body, 'at block', registerAt);
       })
       .catch(er => {
@@ -229,6 +234,19 @@ class Transactions {
         console.log('error getUncompletedJobs', er);
       });
   }
+
+  async getRegistered() {
+    const currentHeight = await bchNode.getBlockCount();
+    return knex('Jobs')
+      .select('username', 'number', 'registrationtxid', 'completed', 'address')
+      .where('blockheight', '<', currentHeight)
+      .where({ completed: true })
+      .orderBy('blockheight', 'desc')
+      .limit(25)
+      .catch(er => {
+        console.log('error getUncompletedJobs', er);
+      });
+  }
   async registerJobs() {
     const currentHeight = await bchNode.getBlockCount();
     const jobs = await this.getUncompletedJobs();
@@ -241,17 +259,19 @@ class Transactions {
         if (each.paidwithtxid !== undefined || each.paidwithtxid !== null) {
           let txid = await this.createCashAccount(each);
           console.log('registered', txid);
-          return this.markCompleted(each.id, txid);
+          return this.markCompleted(each.id, txid, each.blockheight);
         }
       }
     }
     return;
   }
 
-  markCompleted(id, txid) {
+  async markCompleted(id, txid, blockheight) {
+    const blockHash = await bchNode.getBlockHash(blockheight);
+
     return knex('Jobs')
       .where({ id: id })
-      .update({ registrationtxid: txid, completed: true })
+      .update({ registrationtxid: txid, completed: true, blockHash: blockHash })
       .catch(er => {
         console.log('error markCompleted', er);
       });
