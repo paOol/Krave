@@ -58,7 +58,6 @@ router.post('/address', jsonParser, (req, res) => {
   let { uniqid } = req.body;
   let p = bcash.createWalletAccount(uniqid);
   p.then(x => {
-    console.log('addr data', x);
     return res.status(200).send(x.receiveAddress);
   }).catch(err => {
     console.log('err', err);

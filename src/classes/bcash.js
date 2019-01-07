@@ -248,7 +248,7 @@ class Bcash {
 
     let wallet = await this.wallet;
     const info = await wallet.getInfo();
-    console.log('wallet info', info);
+    //console.log('wallet info', info);
     try {
       result = await wallet.createAccount(name, options);
     } catch (e) {

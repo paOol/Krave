@@ -60,10 +60,9 @@ class Transactions {
       return { success: false, status: `missing uniqid` };
     }
     let utxo = await bcash.getUTXOsByTX(txid);
-    if (utxo !== undefined && utxo !== null) {
-      if (utxo.value < cost) {
-        return { success: false, status: `paid less than the required amount` };
-      }
+    console.log('utxo', utxo);
+    if (utxo.value < cost) {
+      return { success: false, status: `paid less than the required amount` };
     }
     let exists = await this.checkExistingTx(txid);
     if (exists.length) {
@@ -194,6 +193,9 @@ class Transactions {
         paidwithtxid: body.txid,
         blockheight: registerAt
       })
+      .then(x => {
+        console.log('job added for', body, 'at block', registerAt);
+      })
       .catch(er => {
         console.log('error inserting job', er);
       });
@@ -231,6 +233,7 @@ class Transactions {
     const jobs = await this.getUncompletedJobs();
     for (const each of jobs) {
       if (each.blockheight == currentHeight + 1) {
+        console.log('this job is coming up', each);
         if (each.paidwithtxid !== undefined || each.paidwithtxid !== null) {
           let txid = await this.createCashAccount(each);
           console.log('registered', txid);
