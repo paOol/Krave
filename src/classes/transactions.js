@@ -1,11 +1,13 @@
+const schedule = require('node-schedule');
 const bch = require('bitcore-lib-cash');
 const bchRPC = require('bitcoin-cash-rpc');
 const base58check = require('base58check');
 const cashaddr = require('cashaddrjs');
 const bchaddr = require('bchaddrjs');
-
+const bcash = require('./bcash').default;
 const config = require('../../knexfile.js');
 const knex = require('knex')(config);
+const cost = 800000;
 
 const bchNode = new bchRPC(
   process.env.RAZZLE_NODE_HOST,
@@ -17,6 +19,12 @@ const bchNode = new bchRPC(
 const genesisBlock = 563720;
 
 class Transactions {
+  async run() {
+    schedule.scheduleJob('*/45 * * * * *', () => {
+      this.registerJobs();
+      console.log('ran registerJobs on  ', Date());
+    });
+  }
   async calculateDiff(current) {
     let currentHeight = await bchNode.getBlockCount();
 
@@ -36,12 +44,31 @@ class Transactions {
     }
     return true;
   }
-  async createCashAccount(body) {
-    let status = this.validateBody(body);
-    if (!status) {
-      return status;
+  async antiCheat(body) {
+    let { uniqid, txid } = body;
+    if (txid === undefined) {
+      return { success: false, status: `missing txid` };
     }
-
+    if (uniqid === undefined) {
+      return { success: false, status: `missing uniqid` };
+    }
+    let utxo = await bcash.getUTXOsByTX(txid);
+    if (utxo !== undefined) {
+      if (utxo.value < cost) {
+        return { success: false, status: `paid less than the required amount` };
+      }
+    }
+    let exists = await this.checkExistingTx(txid);
+    if (exists.length) {
+      return {
+        success: false,
+        status: `transaction paid for a registration already`
+      };
+    }
+    return { success: true };
+  }
+  async createCashAccount(body) {
+    const { address, username } = body;
     let txString = await this.generateTxString(address, username);
     let hex = await bchNode.signRawTransaction(txString);
     let txid = await bchNode.sendRawTransaction(hex.hex);
@@ -59,7 +86,6 @@ class Transactions {
     if (unspent.length === 0) {
       return { status: 'no UTXOs available' };
     }
-    console.log('unspent', unspent);
     const changeAddr = await bchNode.getRawChangeAddress();
 
     let tx = new bch.Transaction().from(unspent[0]).feePerKb(1002);
@@ -93,14 +119,11 @@ class Transactions {
   }
 
   async validateBody(body) {
-    console.log('body', body);
     let { address, blockheight, number, username, minNumber } = body;
     number = parseInt(number);
 
     let currentHeight = await bchNode.getBlockCount();
-    //currentHeight = 564173;
     let diff = currentHeight - genesisBlock + 101;
-    console.log('diff', diff);
 
     if (address === undefined || address === '') {
       return { success: false, status: `missing address` };
@@ -109,7 +132,7 @@ class Transactions {
       return { success: false, status: `missing username` };
     }
 
-    if (blockheight !== currentHeight) {
+    if (blockheight < currentHeight) {
       return { success: false, status: `blockheight for #${diff} expired` };
     }
 
@@ -121,7 +144,7 @@ class Transactions {
   }
 
   async checkJob(body) {
-    const maxLimit = 3;
+    const maxLimit = 23;
     let status = await this.validateBody(body);
     if (!status.success) {
       return status;
@@ -133,7 +156,6 @@ class Transactions {
       .then(x => {
         return x.length;
       });
-    console.log('count', count);
     if (count >= maxLimit) {
       return {
         success: false,
@@ -149,16 +171,77 @@ class Transactions {
     if (!status.success) {
       return status;
     }
-    console.log('status', status);
+
+    let cheatStatus = await this.antiCheat(body);
+    if (!cheatStatus.success) {
+      return cheatStatus;
+    }
+    let registerAt = parseInt(body.number) + genesisBlock - 99;
+
     return knex('Jobs')
       .insert({
         username: body.username,
         address: body.address,
         number: body.number,
-        blockheight: body.blockheight
+        uniqid: body.uniqid,
+        paidwithtxid: body.txid,
+        blockheight: registerAt
       })
       .catch(er => {
         console.log('error inserting job', er);
+      });
+  }
+
+  async checkExistingTx(txid) {
+    return knex('Jobs').where({ paidwithtxid: txid });
+  }
+
+  async getJobs() {
+    const currentHeight = await bchNode.getBlockCount();
+    return knex('Jobs')
+      .select('number', 'username', 'blockheight')
+      .where('blockheight', '>', currentHeight)
+      .orderBy('blockheight', 'asc')
+      .limit(25)
+      .catch(er => {
+        console.log('error getJobs', er);
+      });
+  }
+
+  async getUncompletedJobs() {
+    const currentHeight = await bchNode.getBlockCount();
+    return knex('Jobs')
+      .where('blockheight', '>', currentHeight)
+      .where({ completed: false })
+      .orderBy('blockheight', 'asc')
+      .limit(250)
+      .catch(er => {
+        console.log('error getUncompletedJobs', er);
+      });
+  }
+  async registerJobs() {
+    const currentHeight = await bchNode.getBlockCount();
+    const jobs = await this.getUncompletedJobs();
+    for (const each of jobs) {
+      if (each.blockheight == currentHeight + 1) {
+        console.log('this what i need to register');
+        console.log('each', each);
+        if (each.paidwithtxid !== undefined || each.paidwithtxid !== null) {
+          let txid = await this.createCashAccount(each);
+          console.log('finished', txid);
+          return this.markCompleted(each.id, txid);
+        }
+      }
+    }
+    return;
+  }
+
+  markCompleted(id, txid) {
+    return knex('Jobs')
+      .where({ id: id })
+      .update({ registrationtxid: txid, completed: true })
+      .catch(er => {
+        console.log('error markCompleted', er);
       });
   }
 
