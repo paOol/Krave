@@ -9,7 +9,7 @@ const bcash = require('../classes/bcash').default;
 
 console.log('environment: ', env);
 let url =
-  env == production
+  env == 'production'
     ? process.env.RAZZLE_PRODRESTURL
     : process.env.RAZZLE_RESTURL;
 
