@@ -7,6 +7,7 @@ import uniqid from 'uniqid';
 const BITBOXSDK = require('bitbox-sdk/lib/bitbox-sdk').default;
 const BITBOX = new BITBOXSDK();
 var socket;
+let cost = 800000;
 
 class Payments extends React.Component {
   state = {
@@ -17,10 +18,10 @@ class Payments extends React.Component {
     error: ''
   };
 
-  assignUniqid = async () => {
-    let uniqid = await uniqid();
-    localStorage.set('user', { id: uniqid });
-    return uniqid;
+  assignUniqid = () => {
+    let rand = uniqid();
+    localStorage.set('user', { id: rand });
+    return rand;
   };
 
   generateAddress = uniqid => {
@@ -32,10 +33,7 @@ class Payments extends React.Component {
   };
 
   componentDidMount() {
-    let uniqid = localStorage.get('user').id;
-    if (uniqid === undefined) {
-      uniqid = this.assignUniqid();
-    }
+    const uniqid = this.assignUniqid();
     this.setState({ uniqid: uniqid });
     if (this.props.jobStatus) {
       if (typeof window.web4bch !== 'undefined') {
@@ -126,35 +124,30 @@ class Payments extends React.Component {
   render() {
     const { depositAddress, error, transactionResponse } = this.state;
     const { number, username } = this.props;
-    const cost = 800000;
 
     return (
       <div className="wrapper centered">
         {transactionResponse ? (
-          <div>
-            success. you can view the tx here
-            <a
-              target="_blank"
-              rel="nofollow"
-              href={`https://blockchair.com/bitcoin-cash/transaction/${transactionResponse}`}
-            >
-              {transactionResponse}
-            </a>
-          </div>
+          <Response
+            amount={this.state.amount}
+            transactionResponse={transactionResponse}
+          />
         ) : (
-          <div>
+          <div className="qr">
             <h2>{`${username}#${number}`} is available! </h2>
             <QRCode value={depositAddress} style={{ width: 200 }} />
-            claim this Cash Account by sending 0.008 BCH to <br />
+            <p>claim this Cash Account by sending 0.008 BCH to </p>
+            <br />
             <a href={`${depositAddress}`}>{depositAddress}</a>
             <br />
-            <button
+            <div
+              className="submit"
               onClick={() => {
                 this.payWithBadger(cost);
               }}
             >
-              <p>pay 0.008 BCH with Badger</p>
-            </button>
+              <p>pay with Badger</p>
+            </div>
             {error && <div className="error">{error}</div>}
           </div>
         )}
@@ -163,4 +156,54 @@ class Payments extends React.Component {
   }
 }
 
+class Response extends React.Component {
+  refresh = () => {
+    window.location.reload();
+  };
+  toSatoshis(n) {
+    var result = n - Math.floor(n) !== 0;
+    if (result) {
+      return n * 100000000;
+    }
+    return n;
+  }
+  render() {
+    let { amount, transactionResponse } = this.props;
+    let newamount = this.toSatoshis(amount);
+    let newcost = this.toSatoshis(cost);
+
+    if (newamount >= newcost) {
+      return (
+        <div className="success">
+          <h2>
+            success! <br />
+            you can view the tx &nbsp;
+            <a
+              target="_blank"
+              rel="nofollow"
+              href={`https://blockchair.com/bitcoin-cash/transaction/${transactionResponse}`}
+            >
+              here
+            </a>
+          </h2>
+          <h4>
+            Click <span onClick={this.refresh}> here</span> to register another.
+          </h4>
+        </div>
+      );
+    } else if (newamount < newcost) {
+      return (
+        <div className="error">
+          <h2>
+            Error! <br />
+            The amount sent was under 0.008 BCH.
+          </h2>
+          <h4>
+            Click <span onClick={this.refresh}> here</span> to try again.
+          </h4>
+        </div>
+      );
+    }
+  }
+}
 export default Payments;
