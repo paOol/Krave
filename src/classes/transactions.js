@@ -53,7 +53,7 @@ class Transactions {
       return { success: false, status: `missing uniqid` };
     }
     let utxo = await bcash.getUTXOsByTX(txid);
-    if (utxo !== undefined) {
+    if (utxo !== undefined && utxo !== null) {
       if (utxo.value < cost) {
         return { success: false, status: `paid less than the required amount` };
       }
@@ -224,11 +224,9 @@ class Transactions {
     const jobs = await this.getUncompletedJobs();
     for (const each of jobs) {
       if (each.blockheight == currentHeight + 1) {
-        console.log('this what i need to register');
-        console.log('each', each);
         if (each.paidwithtxid !== undefined || each.paidwithtxid !== null) {
           let txid = await this.createCashAccount(each);
-          console.log('finished', txid);
+          console.log('registered', txid);
           return this.markCompleted(each.id, txid);
         }
       }
