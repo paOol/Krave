@@ -29,7 +29,7 @@ class Transactions {
   async run() {
     schedule.scheduleJob('*/45 * * * * *', () => {
       this.registerJobs();
-      console.log('ran registerJobs on  ', Date());
+      //console.log('ran registerJobs on  ', Date());
     });
   }
   async calculateDiff(current) {
