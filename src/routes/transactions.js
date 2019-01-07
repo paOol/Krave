@@ -34,6 +34,16 @@ router.get('/jobs', (req, res) => {
   });
 });
 
+router.get('/registered', (req, res) => {
+  let p = transactions.getRegistered();
+  p.then(x => {
+    return res.status(200).send(x);
+  }).catch(err => {
+    console.log('err', err);
+    return res.status(500).send(err);
+  });
+});
+
 router.post('/job', jsonParser, (req, res) => {
   let p = transactions.addJob(req.body);
   p.then(x => {

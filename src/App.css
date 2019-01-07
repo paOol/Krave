@@ -139,6 +139,10 @@ span {
   color: #2296ff;
   font-size: 1.2rem;
 }
+a.completed {
+  color: #2296ff;
+  text-decoration: none;
+}
 @media (min-width: 2000px) {
   .wrapper {
     max-width: 1480px;
