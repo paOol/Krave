@@ -5,8 +5,10 @@ exports.up = function(knex, Promise) {
       table.string('username');
       table.string('address');
       table.string('number');
+      table.string('uniqid');
       table.integer('blockheight');
-      table.string('txid');
+      table.string('paidwithtxid');
+      table.string('registrationtxid');
       table.boolean('completed').defaultTo(false);
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('modified_at').defaultTo(knex.fn.now());
