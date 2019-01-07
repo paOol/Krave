@@ -9,6 +9,7 @@ exports.up = function(knex, Promise) {
       table.integer('blockheight');
       table.string('paidwithtxid');
       table.string('registrationtxid');
+      table.string('blockhash');
       table.boolean('completed').defaultTo(false);
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('modified_at').defaultTo(knex.fn.now());

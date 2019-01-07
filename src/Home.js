@@ -1,6 +1,7 @@
 import React from 'react';
 import Upcoming from './Upcoming';
 import Payments from './Payments';
+import Registered from './Registered';
 const axios = require('axios');
 const utils = require('./utils').default;
 
@@ -152,6 +153,7 @@ class Home extends React.Component {
         )}
 
         {jobs && <Upcoming jobs={jobs} />}
+        {<Registered />}
       </div>
     );
   }
