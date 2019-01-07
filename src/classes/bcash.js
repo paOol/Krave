@@ -71,7 +71,7 @@ class Bcash {
 
   getWalletWithToken(wid, token) {
     //token = `f376zbz9731bcec37c13238dcd87edb9d603ba07f73d8be2b2e446a0f26`;
-    return walletClient.wallet(wid, token);
+    return this.walletClient.wallet(wid, token);
   }
 
   /*
