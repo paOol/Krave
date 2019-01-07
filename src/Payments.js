@@ -149,6 +149,10 @@ class Payments extends React.Component {
               <p>pay with Badger</p>
             </div>
             {error && <div className="error">{error}</div>}
+            <small style={{ color: '#93a1ad' }}>
+              Cost is around $1 and is in place to prevent spammers from filling
+              up the 25 possible slots per block.
+            </small>
           </div>
         )}
       </div>

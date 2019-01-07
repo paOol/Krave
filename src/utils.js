@@ -6,14 +6,14 @@ class Utils {
     return diff;
   }
   validateNumber(number, min = null) {
-    let test = parseInt(number);
-    if (typeof test === NaN) {
+    let desiredNumber = parseInt(number);
+    if (typeof desiredNumber === NaN) {
       return { status: 'not a valid number' };
     }
-    if (test < min) {
-      return { status: `that block has been mined already` };
+    if (desiredNumber < min) {
+      return { status: `can't choose a past blockheight` };
     }
-    if (test > min + 200) {
+    if (desiredNumber > min + 800) {
       return { status: `too far into the future` };
     }
     return true;
