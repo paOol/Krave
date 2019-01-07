@@ -1,4 +1,6 @@
 import React from 'react';
+import Upcoming from './Upcoming';
+import Payments from './Payments';
 const axios = require('axios');
 const utils = require('./utils').default;
 
@@ -12,7 +14,11 @@ class Home extends React.Component {
     usernameErr: '',
     numberErr: '',
     addressErr: '',
-    jobStatus: ''
+    jobStatus: '',
+    jobs: '',
+    uniqid: '',
+    txid: '',
+    success: false
   };
 
   getBlockHeight = () => {
@@ -25,13 +31,29 @@ class Home extends React.Component {
     });
   };
 
+  getJobs = () => {
+    axios.get(`api/jobs`).then(x => {
+      this.setState({
+        jobs: x.data
+      });
+    });
+  };
+
   checkAvailability = () => {
     axios.post(`api/check`, this.state).then(x => {
-      console.log('x', x);
-      console.log('x.data.success', x.data.success);
       this.setState({
         jobStatus: x.data.success ? x.data.success : x.data.status
       });
+    });
+  };
+
+  paymentReceived = (uniqid, txid) => {
+    this.setState({ uniqid: uniqid, txid: txid });
+    return axios.post(`api/job`, this.state).then(x => {
+      this.setState({
+        success: true
+      });
+      this.getJobs();
     });
   };
 
@@ -50,7 +72,6 @@ class Home extends React.Component {
       field = 'address';
       valid = utils.validateBchAddress(value);
     }
-    console.log('valid', valid);
     this.setState({ [field]: value });
     if (value.length > 2) {
       if (valid.status !== undefined) {
@@ -63,6 +84,7 @@ class Home extends React.Component {
 
   componentDidMount() {
     this.getBlockHeight();
+    this.getJobs();
   }
 
   render() {
@@ -75,10 +97,19 @@ class Home extends React.Component {
       username,
       number,
       address,
-      jobStatus
+      jobStatus,
+      jobs
     } = this.state;
     return (
       <div className="wrapper">
+        <div className="centered">
+          <h1>Krave</h1>
+          <h3>
+            Cash account numbers go up as each block is mined. Once a
+            blockheight has passed, that alias is gone forever. Not everyone is
+            available to time the one they want. That's where Krave comes in.
+          </h3>
+        </div>
         <div className="container">
           <form>
             <label for="username">Desired Username</label>
@@ -89,7 +120,7 @@ class Home extends React.Component {
             {numberErr && <aside className="error"> {numberErr}</aside>}
             <small>
               Note: only cash accounts between #{minNumber} and #
-              {minNumber + 200} are available
+              {minNumber + 400} are available currently
             </small>
             <label for="address">Your BCH address</label>
             <input onChange={this.validateForm} id="address" type="text" />
@@ -109,7 +140,18 @@ class Home extends React.Component {
           ''
         )}
 
-        {jobStatus ? <div> true {jobStatus} </div> : ''}
+        {jobStatus ? (
+          <Payments
+            jobStatus={jobStatus}
+            username={username}
+            number={number}
+            paymentReceived={this.paymentReceived}
+          />
+        ) : (
+          ''
+        )}
+
+        {jobs && <Upcoming jobs={jobs} />}
       </div>
     );
   }
