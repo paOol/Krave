@@ -1,5 +1,5 @@
 {
-  "name": "my-razzle-app",
+  "name": "Krave",
   "version": "0.1.0",
   "license": "MIT",
   "scripts": {
@@ -7,6 +7,7 @@
     "build": "razzle build",
     "test": "razzle test --env=jsdom",
     "start:prod": "NODE_ENV=production node build/server.js",
+    "deploy": "pm2 deploy ecosystem.config.js production",
     "migrateproduction": "NODE_ENV=production knex migrate:latest"
   },
   "dependencies": {

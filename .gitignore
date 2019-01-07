@@ -13,3 +13,5 @@ build
 \.env
 
 config/config\.js
+
+ecosystem\.config\.js
