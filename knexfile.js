@@ -1,9 +1,13 @@
 const conf = require('./config/config.js');
+const env = process.env.NODE_ENV || 'development';
+
+let host =
+  env == 'production' ? conf.connection.productionHost : conf.connection.host;
 
 module.exports = {
   client: 'postgresql',
   connection: {
-    host: `${conf.connection.host}`,
+    host: `${host}`,
     database: `${conf.connection.database}`,
     port: `${conf.connection.port}`,
     user: `${conf.connection.user}`,
