@@ -25,15 +25,20 @@ class Payments extends React.Component {
   };
 
   generateAddress = uniqid => {
-    axios.post(`api/address`, { uniqid: uniqid }).then(x => {
-      this.setState({
-        depositAddress: x.data
+    return axios
+      .post(`api/address`, { uniqid: uniqid })
+      .then(x => {
+        return this.setState({
+          depositAddress: x.data
+        });
+      })
+      .catch(err => {
+        console.log('err', err);
       });
-    });
   };
 
   componentDidMount() {
-    const uniqid = this.assignUniqid();
+    const uniqid = this.assignUniqid() || 'placeholder';
     this.setState({ uniqid: uniqid });
     if (this.props.jobStatus) {
       if (typeof window.web4bch !== 'undefined') {
@@ -138,7 +143,22 @@ class Payments extends React.Component {
             <QRCode value={depositAddress} style={{ width: 200 }} />
             <p>claim this Cash Account by sending 0.008 BCH to </p>
             <br />
-            <a href={`${depositAddress}`}>{depositAddress}</a>
+            <a
+              onClick={() => {
+                navigator.clipboard.writeText(depositAddress);
+              }}
+              href={`${depositAddress}`}
+            >
+              {depositAddress}
+            </a>
+            <div
+              className="copy"
+              onClick={() => {
+                navigator.clipboard.writeText(depositAddress);
+              }}
+            >
+              click to copy
+            </div>
             <br />
             <div
               className="submit"

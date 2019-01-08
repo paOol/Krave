@@ -35,29 +35,29 @@ walletSocket.on('connect', async e => {
   }
 });
 
-// walletSocket.bind('tx', (wallet, tx) => {
-//   let outputs = tx.outputs;
-//   console.log('tx', tx);
-//   console.log('outputs', outputs);
-//   console.log('wallet', wallet);
+walletSocket.bind('tx', (wallet, tx) => {
+  let outputs = tx.outputs;
+  console.log('tx', tx);
+  console.log('outputs', outputs);
+  console.log('wallet', wallet);
 
-//   let utxo = outputs[0];
-//   let bcash;
-//   outputs.map(x => {
-//     if (x.path !== undefined) {
-//       bcash = x.path;
-//     }
-//   });
+  // let utxo = outputs[0];
+  // let bcash;
+  // outputs.map(x => {
+  //   if (x.path !== undefined) {
+  //     bcash = x.path;
+  //   }
+  // });
 
-//   let obj = {
-//     utxo: utxo,
-//     bcash: bcash
-//   };
-//   console.log('event obj', obj);
+  // let obj = {
+  //   utxo: utxo,
+  //   bcash: bcash
+  // };
+  // console.log('event obj', obj);
 
-//   // let bcashclass = new Bcash();
-//   // bcashclass.addCredits(obj);
-// });
+  // let bcashclass = new Bcash();
+  // bcashclass.addCredits(obj);
+});
 
 /** Class representing Bcash. */
 
