@@ -1,6 +1,6 @@
 {
   "name": "Krave",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "scripts": {
     "start": "razzle start",
@@ -30,6 +30,8 @@
     "react-dom": "16.7.0",
     "react-qr-svg": "^2.1.0",
     "react-router-dom": "4.3.1",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0",
     "store": "^2.0.12",
     "uniqid": "^5.0.3"
   }
