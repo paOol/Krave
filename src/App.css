@@ -168,6 +168,12 @@ a.completed {
   margin: 2rem auto;
   border-radius: 5px;
 }
+
+footer {
+  margin: 4rem auto;
+  text-align: center;
+  color: #93a1ad;
+}
 @media (min-width: 2000px) {
   .wrapper {
     max-width: 1480px;
