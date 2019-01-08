@@ -4,7 +4,6 @@ import Payments from './Payments';
 import Registered from './Registered';
 const axios = require('axios');
 const utils = require('./utils').default;
-
 class Home extends React.Component {
   state = {
     blockheight: '',
@@ -16,10 +15,18 @@ class Home extends React.Component {
     numberErr: '',
     addressErr: '',
     jobStatus: '',
-    jobs: '',
     uniqid: '',
     txid: '',
+    jobs: '',
     success: false
+  };
+
+  getJobs = () => {
+    axios.get(`api/jobs`).then(x => {
+      this.setState({
+        jobs: x.data
+      });
+    });
   };
 
   getBlockHeight = () => {
@@ -32,14 +39,6 @@ class Home extends React.Component {
     });
   };
 
-  getJobs = () => {
-    axios.get(`api/jobs`).then(x => {
-      this.setState({
-        jobs: x.data
-      });
-    });
-  };
-
   checkAvailability = () => {
     axios.post(`api/check`, this.state).then(x => {
       this.setState({
@@ -48,14 +47,8 @@ class Home extends React.Component {
     });
   };
 
-  paymentReceived = (uniqid, txid) => {
-    this.setState({ uniqid: uniqid, txid: txid });
-    return axios.post(`api/job`, this.state).then(x => {
-      this.setState({
-        success: true
-      });
-      this.getJobs();
-    });
+  paymentReceived = () => {
+    this.getJobs();
   };
 
   validateForm = e => {
@@ -99,6 +92,7 @@ class Home extends React.Component {
       number,
       address,
       jobStatus,
+      success,
       jobs
     } = this.state;
     return (
@@ -147,13 +141,14 @@ class Home extends React.Component {
             username={username}
             number={number}
             paymentReceived={this.paymentReceived}
+            data={this.state}
           />
         ) : (
           ''
         )}
 
         {jobs && <Upcoming jobs={jobs} />}
-        {<Registered />}
+        <Registered />
         <footer>
           Ran into an issue? head over to the&nbsp;
           <a rel="nofollow" target="_blank" href="https://discord.gg/9kACN9t">
