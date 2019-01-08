@@ -5,6 +5,7 @@ import express from 'express';
 import { renderToString } from 'react-dom/server';
 import routes from './routes';
 import transactions from './classes/transactions';
+import bcash from './classes/bcash';
 
 console.log('running scheduler');
 transactions.run();
@@ -43,7 +44,9 @@ server
               ${
                 process.env.NODE_ENV === 'production'
                   ? `<script src="${assets.client.js}" defer></script>`
-                  : `<script src="${assets.client.js}" defer crossorigin></script>`
+                  : `<script src="${
+                      assets.client.js
+                    }" defer crossorigin></script>`
               }
           </head>
           <body>
