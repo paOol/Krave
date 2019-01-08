@@ -5,7 +5,7 @@ import { QRCode } from 'react-qr-svg';
 import uniqid from 'uniqid';
 import openSocket from 'socket.io-client';
 
-const socketio = openSocket('http://localhost:4646');
+const socketio = openSocket('https://localhost:4646');
 let cost = 800000;
 
 class Payments extends React.Component {
