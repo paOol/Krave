@@ -46,12 +46,6 @@ class Transactions {
     if (uniqid === undefined) {
       return { success: false, status: `missing uniqid` };
     }
-    let utxo = await bcash.getUTXOsByTX(txid);
-    console.log('txid', txid);
-    console.log('utxo', utxo);
-    // if (utxo.value < cost) {
-    //   return { success: false, status: `paid less than the required amount` };
-    // }
     let exists = await this.checkExistingTx(txid);
     if (exists.length) {
       return {
@@ -136,40 +130,6 @@ class Transactions {
     } else {
       return { success: true };
     }
-  }
-
-  async addJob(body) {
-    let status = await this.validateBody(body);
-    if (!status.success) {
-      return status;
-    }
-
-    let cheatStatus = await this.antiCheat(body);
-    if (!cheatStatus.success) {
-      return cheatStatus;
-    }
-    const registerAt = parseInt(body.number) + genesisBlock - 100;
-
-    return knex('Jobs')
-      .insert({
-        username: body.username,
-        address: body.address,
-        number: body.number,
-        uniqid: body.uniqid,
-        paidwithtxid: body.txid,
-        blockheight: registerAt
-      })
-      .then(x => {
-        delete body.jobs;
-        delete body.usernameErr;
-        delete body.numberErr;
-        delete body.addressErr;
-        delete body.success;
-        console.log('job added for', body, 'at block', registerAt);
-      })
-      .catch(er => {
-        console.log('error inserting job', er);
-      });
   }
 
   async checkExistingTx(txid) {
