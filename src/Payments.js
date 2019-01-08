@@ -6,9 +6,6 @@ import uniqid from 'uniqid';
 import openSocket from 'socket.io-client';
 
 const socketio = openSocket('http://localhost:4646');
-const BITBOXSDK = require('bitbox-sdk/lib/bitbox-sdk').default;
-const BITBOX = new BITBOXSDK();
-var socket;
 let cost = 800000;
 
 class Payments extends React.Component {
