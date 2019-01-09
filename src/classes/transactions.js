@@ -142,7 +142,7 @@ class Transactions {
       .select('number', 'username', 'blockheight')
       .where('blockheight', '>', currentHeight)
       .orderBy('blockheight', 'asc')
-      .limit(25)
+      .limit(125)
       .catch(er => {
         console.log('error getJobs', er);
       });

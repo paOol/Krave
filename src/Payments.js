@@ -3,18 +3,16 @@ import axios from 'axios';
 import localStorage from 'store';
 import { QRCode } from 'react-qr-svg';
 import uniqid from 'uniqid';
-import openSocket from 'socket.io-client';
+import io from 'socket.io-client';
 
-const socketio = openSocket('https://localhost:4646');
+const socketio = io();
 let cost = 800000;
 
 class Payments extends React.Component {
   state = {
     uniqid: '',
     depositAddress: '',
-    transactionResponse: '',
-    socketResponse: '',
-    error: ''
+    socketResponse: ''
   };
   assignUniqid = () => {
     let rand = uniqid();
@@ -31,6 +29,9 @@ class Payments extends React.Component {
           depositAddress: x.data,
           uniqid: uniqid
         };
+        delete obj.jobs;
+        delete obj.success;
+        delete obj.txid;
         socketio.emit('depositAddress', obj);
         return this.setState({
           depositAddress: x.data
@@ -80,7 +81,7 @@ class Payments extends React.Component {
   };
 
   render() {
-    const { depositAddress, error, socketResponse } = this.state;
+    const { depositAddress, socketResponse } = this.state;
     const { number, username, paymentReceived } = this.props;
 
     return (
@@ -122,7 +123,7 @@ class Payments extends React.Component {
             >
               <p>pay with Badger</p>
             </div>
-            {error && <div className="error">{error}</div>}
+
             <small style={{ color: '#93a1ad' }}>
               Cost is around $1 and is in place to prevent spammers from filling
               up the 25 possible slots per block.

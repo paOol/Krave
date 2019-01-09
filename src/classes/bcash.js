@@ -4,11 +4,9 @@ const config = require('../../knexfile.js');
 const knex = require('knex')(config);
 
 const { WalletClient, NodeClient } = require('bclient');
-const bsock = require('bsock');
 const { Network, ChainEntry } = require('bcash');
 const network = Network.get('main');
 
-const io = require('socket.io')();
 const genesisBlock = 563720;
 
 const walletOptions = {
@@ -20,63 +18,6 @@ const walletOptions = {
 };
 
 const wid = conf.node.walletID;
-
-let walletSocket = bsock.connect(
-  conf.node.walletPort,
-  conf.node.host,
-  conf.node.ssl
-);
-io.on('connection', async client => {
-  console.log('connected', client.conn.id);
-
-  let resp;
-  client.on('depositAddress', x => {
-    resp = x;
-  });
-
-  walletSocket.bind('tx', async (wallet, tx) => {
-    console.log('tx received', tx);
-    let txid = tx.hash;
-    let outputs = tx.outputs;
-    let msg;
-
-    if (resp !== undefined) {
-      const match = outputs.find(x => x.address === resp.depositAddress);
-      if (match) {
-        const utxo = match.value;
-        if (utxo < 800000) {
-          msg = {
-            success: false,
-            status: `${utxo} satoshis was received, but the cost is 0.008 BCH`
-          };
-        } else {
-          let bcash = new Bcash();
-          resp.txid = txid;
-          await bcash.addJob(resp);
-          msg = {
-            success: true,
-            status: `Success! ${utxo} was received,and your username was reserved`,
-            txid: txid
-          };
-        }
-        client.emit('bcash', msg);
-      }
-    }
-  });
-});
-
-io.listen(4646);
-
-walletSocket.on('connect', async e => {
-  try {
-    await walletSocket.call('auth', conf.node.apiKey);
-
-    console.log('Wallet - Attempting join ', wid);
-    await walletSocket.call('join', wid);
-  } catch (e) {
-    console.log('Wallet - Connection Error:\n', e);
-  }
-});
 
 /** Class representing Bcash. */
 
