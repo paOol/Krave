@@ -40,7 +40,7 @@ io.on('connection', async client => {
     let msg;
 
     if (resp !== undefined) {
-      console.log('resp', resp);
+      //console.log('resp', resp);
       const match = outputs.find(x => x.address === resp.depositAddress);
       if (match) {
         const utxo = match.value;
