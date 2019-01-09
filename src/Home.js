@@ -150,10 +150,22 @@ class Home extends React.Component {
         {jobs && <Upcoming jobs={jobs} />}
         <Registered />
         <footer>
-          Ran into an issue? head over to the&nbsp;
-          <a rel="nofollow" target="_blank" href="https://discord.gg/9kACN9t">
-            Discord Chat
-          </a>
+          <p>
+            Ran into an issue? head over to the&nbsp;
+            <a rel="nofollow" target="_blank" href="https://discord.gg/9kACN9t">
+              Discord Chat
+            </a>
+          </p>
+          <p>
+            Krave is{' '}
+            <a
+              rel="nofollow"
+              target="_blank"
+              href="https://github.com/paOol/Krave"
+            >
+              Open Source
+            </a>
+          </p>
         </footer>
       </div>
     );
