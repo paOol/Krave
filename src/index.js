@@ -29,7 +29,6 @@ io.on('connection', async client => {
 
   let resp;
   client.on('depositAddress', x => {
-    console.log('client emitted');
     resp = x;
   });
 

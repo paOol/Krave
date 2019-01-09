@@ -1,22 +1,21 @@
 import React from 'react';
 import axios from 'axios';
-import localStorage from 'store';
 import { QRCode } from 'react-qr-svg';
 import uniqid from 'uniqid';
 import io from 'socket.io-client';
+require('events').EventEmitter.prototype._maxListeners = 100;
 
-const socketio = io();
 let cost = 800000;
 
 class Payments extends React.Component {
   state = {
     uniqid: '',
+    socket: '',
     depositAddress: '',
     socketResponse: ''
   };
   assignUniqid = () => {
     let rand = uniqid();
-    localStorage.set('user', { id: rand });
     return rand;
   };
 
@@ -32,7 +31,7 @@ class Payments extends React.Component {
         delete obj.jobs;
         delete obj.success;
         delete obj.txid;
-        socketio.emit('depositAddress', obj);
+        this.state.socket.emit('depositAddress', obj);
         return this.setState({
           depositAddress: x.data
         });
@@ -43,9 +42,11 @@ class Payments extends React.Component {
   };
 
   componentDidMount() {
-    const uniqid = this.assignUniqid() || 'placeholder';
-    this.setState({ uniqid: uniqid });
     if (this.props.jobStatus) {
+      const uniqid = this.assignUniqid() || 'placeholder';
+      const socketio = io();
+      this.setState({ uniqid: uniqid, socket: socketio });
+
       if (typeof window.web4bch !== 'undefined') {
         let web4bch = new window.Web4Bch(window.web4bch.currentProvider);
         this.setState({ web4bch: web4bch });
@@ -58,6 +59,11 @@ class Payments extends React.Component {
         });
       });
     }
+  }
+
+  componentWillUnmount() {
+    console.log('closing');
+    this.state.socket.close();
   }
 
   payWithBadger = amount => {
@@ -73,7 +79,7 @@ class Payments extends React.Component {
 
       web4bch.bch.sendTransaction(transaction, (err, txid) => {
         if (err) {
-          console.log(';err', err);
+          console.log('err', err);
           return;
         }
       });
