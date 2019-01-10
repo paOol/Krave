@@ -202,11 +202,12 @@ class Transactions {
   }
 
   async markCompleted(id, txid, blockheight) {
+    blockheight = blockheight - 1;
     const blockHash = await bchNode.getBlockHash(blockheight);
 
     return knex('Jobs')
       .where({ id: id })
-      .update({ registrationtxid: txid, completed: true, blockHash: blockHash })
+      .update({ registrationtxid: txid, completed: true, blockhash: blockHash })
       .catch(er => {
         console.log('error markCompleted', er);
       });
