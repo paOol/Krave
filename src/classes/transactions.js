@@ -27,7 +27,7 @@ const genesisBlock = 563720;
 
 class Transactions {
   async run() {
-    schedule.scheduleJob('*/45 * * * * *', () => {
+    schedule.scheduleJob('0-59/15 * * * * *', () => {
       this.registerJobs();
       //console.log('ran registerJobs on  ', Date());
     });
@@ -164,7 +164,7 @@ class Transactions {
     const currentHeight = await bchNode.getBlockCount();
     return knex('Jobs')
       .select('username', 'number', 'registrationtxid', 'completed', 'address')
-      .where('blockheight', '<', currentHeight)
+      .where('blockheight', '<=', currentHeight)
       .where({ completed: true })
       .orderBy('blockheight', 'desc')
       .limit(25)
@@ -175,19 +175,29 @@ class Transactions {
   async registerJobs() {
     const currentHeight = await bchNode.getBlockCount();
     const jobs = await this.getUncompletedJobs();
-    for (const each of jobs) {
-      // if (each.blockheight == currentHeight + 2) {
-      //   console.log('upcoming job', each);
-      // }
-      if (each.blockheight == currentHeight + 1) {
-        console.log('registering', each);
-        if (each.paidwithtxid !== undefined || each.paidwithtxid !== null) {
-          let txid = await this.createCashAccount(each);
-          console.log('registered', txid);
-          return this.markCompleted(each.id, txid, each.blockheight);
+
+    jobs.map(async x => {
+      if (x.blockheight == currentHeight + 1) {
+        //console.log('registering', x);
+        if (x.paidwithtxid !== undefined || x.paidwithtxid !== null) {
+          let txid = await this.createCashAccount(x);
+          console.log('registered', `${x.username}#${x.number}`, txid);
+          this.markCompleted(x.id, txid, x.blockheight);
         }
       }
-    }
+    });
+
+    // for (const each of jobs) {
+
+    //   if (each.blockheight == currentHeight + 1) {
+    //     //console.log('registering', each);
+    //     if (each.paidwithtxid !== undefined || each.paidwithtxid !== null) {
+    //       let txid = await this.createCashAccount(each);
+    //       console.log('registered', `${each.username}#${each.number}`, txid);
+    //       this.markCompleted(each.id, txid, each.blockheight);
+    //     }
+    //   }
+    // }
     return;
   }
 
