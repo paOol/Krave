@@ -1,7 +1,7 @@
 import http from 'http';
 
 let app = require('./server').default;
-let bcash = require('./classes/bcash').default;
+let shared = require('./classes/shared').default;
 
 const conf = require('./../config/config.js');
 const bsock = require('bsock');
@@ -50,7 +50,7 @@ io.on('connection', async client => {
           };
         } else {
           resp.txid = txid;
-          await bcash.addJob(resp);
+          await shared.addJob(resp);
           msg = {
             success: true,
             status: `Success! ${utxo} was received,and your username was reserved`,

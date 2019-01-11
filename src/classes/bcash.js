@@ -2,6 +2,7 @@ const conf = require('../../config/config.js');
 const env = process.env.NODE_ENV || 'development';
 const config = require('../../knexfile.js');
 const knex = require('knex')(config);
+const shared = require('./shared').default;
 
 const { WalletClient, NodeClient } = require('bclient');
 const { Network, ChainEntry } = require('bcash');
@@ -16,6 +17,11 @@ const walletOptions = {
   port: conf.node.walletPort,
   ssl: conf.node.ssl
 };
+const clientOptions = {
+  apiKey: conf.node.apiKey,
+  host: conf.node.host,
+  port: conf.node.clientPort
+};
 
 const wid = conf.node.walletID;
 
@@ -25,7 +31,7 @@ class Bcash {
   constructor() {
     if (!this.wallet) {
       this.walletClient = new WalletClient(walletOptions);
-
+      this.client = new NodeClient(clientOptions);
       this.wallet = this.walletClient.wallet(wid);
     }
   }
@@ -255,77 +261,6 @@ class Bcash {
   async createWalletID(id) {
     const result = await this.walletClient.createWallet(id);
     return result;
-  }
-
-  async validateBody(body) {
-    let { address, blockheight, number, username, minNumber } = body;
-    number = parseInt(number);
-
-    if (address === undefined || address === '') {
-      return { success: false, status: `missing address` };
-    }
-    if (username === undefined) {
-      return { success: false, status: `missing username` };
-    }
-
-    if (number < minNumber) {
-      return { success: false, status: `that block has been mined already` };
-    }
-
-    return { success: true };
-  }
-  async antiCheat(body) {
-    let { uniqid, txid } = body;
-    if (txid === undefined) {
-      return { success: false, status: `missing txid` };
-    }
-    if (uniqid === undefined) {
-      return { success: false, status: `missing uniqid` };
-    }
-    let exists = await this.checkExistingTx(txid);
-    if (exists.length) {
-      return {
-        success: false,
-        status: `transaction paid for a registration already`
-      };
-    }
-    return { success: true };
-  }
-  async addJob(body) {
-    let status = await this.validateBody(body);
-    if (!status.success) {
-      return status;
-    }
-
-    let cheatStatus = await this.antiCheat(body);
-    if (!cheatStatus.success) {
-      return cheatStatus;
-    }
-    const registerAt = parseInt(body.number) + genesisBlock - 100;
-
-    return knex('Jobs')
-      .insert({
-        username: body.username,
-        address: body.address,
-        number: body.number,
-        uniqid: body.uniqid,
-        paidwithtxid: body.txid,
-        blockheight: registerAt
-      })
-      .then(x => {
-        delete body.jobs;
-        delete body.usernameErr;
-        delete body.numberErr;
-        delete body.addressErr;
-        delete body.success;
-        console.log('job added for', body, 'at block', registerAt);
-      })
-      .catch(er => {
-        console.log('error inserting job', er);
-      });
-  }
-  async checkExistingTx(txid) {
-    return knex('Jobs').where({ paidwithtxid: txid });
   }
 }
 
