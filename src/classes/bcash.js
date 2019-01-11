@@ -53,6 +53,20 @@ class Bcash {
   }
 
   /*
+    get a list of all accounts even outside project and their balances
+    @param {int} mininum confs to be included in balance
+    @param {boolean} watch only or not
+    @return {obj} account name and balance
+  */
+  listUnspent(minconf = 0, maxconf = null, addresses = null) {
+    return this.walletClient.execute('listunspent', [
+      minconf,
+      maxconf,
+      addresses
+    ]);
+  }
+
+  /*
     List all account names for this project / wid
     @return {array} ['default','n23432','n453453']
   */
@@ -74,6 +88,14 @@ class Bcash {
   */
   getTransactionDetails(hash) {
     return this.wallet.getTX(hash);
+  }
+
+  /*
+    create new change address for account.
+    @return {obj} address details
+  */
+  generateChangeAddress(account) {
+    return this.wallet.createChange(account);
   }
 
   /*
