@@ -129,6 +129,14 @@ input {
   color: #ea86b3;
   font-size: 1.4rem;
   margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+}
+.right {
+  justify-content: flex-end;
+}
+.left {
+  justify-content: flex-start;
 }
 svg {
   display: block;
@@ -151,6 +159,9 @@ span {
 a.completed {
   color: #2296ff;
   text-decoration: none;
+}
+.account span {
+  margin-right: 0.25rem;
 }
 .copy:active {
   background: #472486;
@@ -184,6 +195,12 @@ footer {
   .wrapper {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+  a.completed {
+    word-break: break-word;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    text-align: left;
   }
 
   form {

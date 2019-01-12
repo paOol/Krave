@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-
+import Emojis from './emojis';
 class Upcoming extends React.Component {
   state = {
     registered: ''
@@ -26,6 +26,7 @@ class Upcoming extends React.Component {
     return (
       <div className="wrapper centered">
         <h2>Completed Registrations </h2>
+
         <div className="container">
           {registered.map((x, i) => {
             let txid = x.registrationtxid.startsWith('{')
@@ -33,6 +34,8 @@ class Upcoming extends React.Component {
               : x.registrationtxid;
             return (
               <div className="account" key={i}>
+                {' '}
+                <Emojis account={x} />
                 <a
                   className="completed"
                   target="_blank"

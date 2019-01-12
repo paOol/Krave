@@ -11,7 +11,7 @@ class Upcoming extends React.Component {
           {jobs &&
             jobs.map((x, i) => {
               return (
-                <div className="account" key={i}>
+                <div className="account right" key={i}>
                   {`${x.username}#${x.number}`}
                 </div>
               );
