@@ -4,11 +4,10 @@ import { StaticRouter } from 'react-router-dom';
 import express from 'express';
 import { renderToString } from 'react-dom/server';
 import routes from './routes';
-import transactions from './classes/transactions';
 import bcash from './classes/bcash';
 
 console.log('running scheduler');
-transactions.run();
+bcash.run();
 
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 

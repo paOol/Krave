@@ -6,7 +6,6 @@ const cashaddr = require('cashaddrjs');
 const bchaddr = require('bchaddrjs');
 const config = require('../../knexfile.js');
 const knex = require('knex')(config);
-const cost = 800000;
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -55,6 +54,7 @@ class Shared {
     let txid = await bchNode.sendRawTransaction(hex.hex);
     return txid;
   }
+
   async generateTxString(addr, username) {
     let paymentData = this.id_payment_data(addr);
     let payload = {
@@ -74,6 +74,7 @@ class Shared {
 
     const rand = unspent[(Math.random() * unspent.length) | 0];
     if (rand === undefined || rand.length === 0) {
+      console.log('no random UTXOs found');
       return { status: 'no random UTXOs available' };
     }
 

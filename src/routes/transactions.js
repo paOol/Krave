@@ -4,27 +4,21 @@ const axios = require('axios');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const jsonParser = bodyParser.json();
-const transactions = require('../classes/transactions').default;
+const shared = require('../classes/shared').default;
 const bcash = require('../classes/bcash').default;
 
-let url =
-  env == 'production'
-    ? process.env.RAZZLE_PRODRESTURL
-    : process.env.RAZZLE_RESTURL;
-
 router.get('/blockheight', (req, res) => {
-  try {
-    return axios.get(`${url}/v1/control/getInfo`).then(x => {
-      return res.status(200).send({ blocks: x.data.blocks });
-    });
-  } catch (e) {
-    console.log('err', e);
-    return res.status(500).send(e);
-  }
+  let p = bcash.getBlockCount();
+  p.then(x => {
+    return res.status(200).send({ blocks: x });
+  }).catch(err => {
+    console.log('err', err);
+    return res.status(500).send(err);
+  });
 });
 
 router.get('/jobs', (req, res) => {
-  let p = transactions.getJobs();
+  let p = bcash.getJobs();
   p.then(x => {
     return res.status(200).send(x);
   }).catch(err => {
@@ -34,7 +28,7 @@ router.get('/jobs', (req, res) => {
 });
 
 router.get('/registered', (req, res) => {
-  let p = transactions.getRegistered();
+  let p = bcash.getRegistered();
   p.then(x => {
     return res.status(200).send(x);
   }).catch(err => {
@@ -44,7 +38,7 @@ router.get('/registered', (req, res) => {
 });
 
 router.post('/job', jsonParser, (req, res) => {
-  let p = transactions.addJob(req.body);
+  let p = shared.addJob(req.body);
   p.then(x => {
     return res.status(200).send(x);
   }).catch(err => {
@@ -54,7 +48,7 @@ router.post('/job', jsonParser, (req, res) => {
 });
 
 router.post('/check', jsonParser, (req, res) => {
-  let p = transactions.checkJob(req.body);
+  let p = bcash.checkJob(req.body);
   p.then(x => {
     return res.status(200).send(x);
   }).catch(err => {
