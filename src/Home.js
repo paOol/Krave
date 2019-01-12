@@ -22,7 +22,7 @@ class Home extends React.Component {
   };
 
   getJobs = () => {
-    axios.get(`api/jobs`).then(x => {
+    return axios.get(`api/jobs`).then(x => {
       this.setState({
         jobs: x.data
       });
@@ -47,8 +47,14 @@ class Home extends React.Component {
     });
   };
 
-  paymentReceived = () => {
-    this.getJobs();
+  paymentReceived = a => {
+    let { txid } = this.state;
+    if (txid !== a.txid) {
+      this.setState({
+        txid: a.txid
+      });
+      this.getJobs();
+    }
   };
 
   validateForm = e => {

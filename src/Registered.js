@@ -7,7 +7,7 @@ class Upcoming extends React.Component {
   };
 
   getRegistered = () => {
-    axios.get(`api/registered`).then(x => {
+    return axios.get(`api/registered`).then(x => {
       this.setState({
         registered: x.data
       });
@@ -28,7 +28,7 @@ class Upcoming extends React.Component {
         <h2>Completed Registrations </h2>
 
         <div className="container">
-          {registered.map((x, i) => {
+          {registered.length && registered.map((x, i) => {
             let txid = x.registrationtxid.startsWith('{')
               ? '#'
               : x.registrationtxid;

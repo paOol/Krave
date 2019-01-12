@@ -4,8 +4,8 @@ import { QRCode } from 'react-qr-svg';
 import uniqid from 'uniqid';
 import io from 'socket.io-client';
 require('events').EventEmitter.prototype._maxListeners = 100;
-
-let cost = 800000;
+const env = process.env.NODE_ENV || 'development';
+let cost = env == 'production' ? 800000 : 800;
 
 class Payments extends React.Component {
   state = {
@@ -145,12 +145,11 @@ class Response extends React.Component {
   refresh = () => {
     window.location.reload();
   };
-
   render() {
     let { socketResponse } = this.props;
 
     if (socketResponse.success) {
-      this.props.paymentReceived();
+      this.props.paymentReceived(socketResponse);
       return (
         <div className="success">
           <h2>

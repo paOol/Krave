@@ -2,10 +2,12 @@ const conf = require('../../config/config.js');
 const env = process.env.NODE_ENV || 'development';
 const config = require('../../knexfile.js');
 const knex = require('knex')(config);
+const axios = require('axios');
 const shared = require('./shared').default;
+const schedule = require('node-schedule');
 
 const { WalletClient, NodeClient } = require('bclient');
-const { Network, ChainEntry } = require('bcash');
+const { Network, Script, Input, Output, Stack, Outpoint } = require('bcash');
 const network = Network.get('main');
 
 const genesisBlock = 563720;
@@ -35,6 +37,72 @@ class Bcash {
       this.wallet = this.walletClient.wallet(wid);
     }
   }
+  async run() {
+    schedule.scheduleJob('0-59/12 * * * * *', () => {
+      this.registerJobs();
+      //console.log('ran registerJobs on  ', Date());
+    });
+
+    schedule.scheduleJob('0 2 * * *', () => {
+      // everyday 2am
+      this.zapAllTxs();
+    });
+  }
+
+  async createCashAccount(address, username) {
+    let protocolCode = {
+      p2pkh: '01',
+      p2sh: '02',
+      p2pc: '03',
+      p2sk: '04'
+    };
+
+    let addressType = shared.id_payment_data(address);
+    if (!addressType) {
+      console.log('address:', address, ' invalid');
+      return;
+    }
+    let protocolIdentifier = Buffer.from('01010101', 'hex');
+    let accountName = Buffer.from(username, 'utf8');
+    let paymentData;
+    for (let [key, value] of Object.entries(addressType)) {
+      paymentData = Buffer.from(protocolCode[key] + value, 'hex');
+    }
+
+    let script = new Script();
+    script.pushSym('OP_RETURN');
+    script.pushData(protocolIdentifier);
+    script.pushData(accountName);
+    script.pushData(paymentData);
+    script.compile();
+
+    let output = new Output();
+    output.fromScript(script, 0);
+    const options = {
+      smart: true,
+      rate: 1001,
+      outputs: [output]
+    };
+
+    let txid = await this.wallet.send(options);
+    return txid.hash;
+  }
+
+  /*
+    get current block height
+    @return {integer} 565028
+  */
+  getBlockCount(wid, token) {
+    return this.client.execute('getblockcount');
+  }
+  /*
+    get blockhash by height
+    @return {string} "51726259de9560e1924f3cb554ad16e889b6170eb4d01d01f5a4ca8a81d1e318"
+  */
+  getBlockHash(blockheight) {
+    return this.client.execute('getblockhash', [blockheight]);
+  }
+
   getWalletWithToken(wid, token) {
     //token = `f376zbz9731bcec37c13238dcd87edb9d603ba07f73d8be2b2e446a0f26`;
     return this.walletClient.wallet(wid, token);
@@ -219,8 +287,8 @@ class Bcash {
     let accounts = await this.getAllAccounts();
     for (const each of accounts) {
       await this.removePendingTxs(each, 7000);
-      console.log('zapped all txs for', each);
     }
+    console.log('zapped all txs on', Date());
     let check = await this.getUnconfirmeds();
     if (check.length >= 1) {
       return 'error when attempting to zap all transactions';
@@ -228,6 +296,7 @@ class Bcash {
     return true;
   }
 
+  // creates account to generate unique deposit address
   async createWalletAccount(name) {
     let result;
 
@@ -248,7 +317,7 @@ class Bcash {
     return result;
   }
 
-  async send(ctx, value, address) {
+  async send(value, address) {
     const options = {
       rate: 1000,
       outputs: [{ value: value, address: address }]
@@ -261,6 +330,109 @@ class Bcash {
   async createWalletID(id) {
     const result = await this.walletClient.createWallet(id);
     return result;
+  }
+
+  async getRegistered() {
+    const currentHeight = await this.getBlockCount();
+    return knex('Jobs')
+      .select(
+        'username',
+        'number',
+        'registrationtxid',
+        'completed',
+        'blockhash'
+      )
+      .where('blockheight', '<=', currentHeight)
+      .where({ completed: true })
+      .orderBy('blockheight', 'desc')
+      .limit(265)
+      .catch(er => {
+        console.log('error getUncompletedJobs', er);
+      });
+  }
+  async registerJobs() {
+    const currentHeight = await this.getBlockCount();
+    const jobs = await this.getUncompletedJobs();
+
+    jobs.map(async x => {
+      if (x.blockheight == currentHeight + 1) {
+        //console.log('registering', x);
+        if (x.paidwithtxid !== undefined || x.paidwithtxid !== null) {
+          let txid = await this.createCashAccount(x.address, x.username);
+          console.log('registered', `${x.username}#${x.number}`, txid);
+          if (typeof txid === 'string') {
+            this.markCompleted(x.id, txid, currentHeight);
+          }
+        }
+      }
+    });
+  }
+
+  async getUncompletedJobs() {
+    const currentHeight = await this.getBlockCount();
+    return knex('Jobs')
+      .where('blockheight', '>', currentHeight)
+      .where({ completed: false })
+      .orderBy('blockheight', 'asc')
+      .limit(250)
+      .catch(er => {
+        console.log('error getUncompletedJobs', er);
+      });
+  }
+
+  async checkJob(body) {
+    const maxLimit = 23;
+    let status = await shared.validateBody(body);
+    if (!status.success) {
+      return status;
+    }
+    const count = await knex('Jobs')
+      .where({
+        blockheight: body.blockheight
+      })
+      .then(x => {
+        return x.length;
+      });
+    if (count >= maxLimit) {
+      return {
+        success: false,
+        status: `too many queued jobs for #${body.number}`
+      };
+    } else {
+      return { success: true };
+    }
+  }
+
+  async getJobs() {
+    const currentHeight = await this.getBlockCount();
+    return knex('Jobs')
+      .select('number', 'username', 'blockheight')
+      .where('blockheight', '>', currentHeight)
+      .orderBy('blockheight', 'asc')
+      .limit(125)
+      .catch(er => {
+        console.log('error getJobs', er);
+      });
+  }
+
+  wait(ms) {
+    var start = new Date().getTime();
+    var end = start;
+    while (end < start + ms) {
+      end = new Date().getTime();
+    }
+  }
+
+  async markCompleted(id, txid, blockheight) {
+    blockheight = blockheight - 1;
+    const blockHash = await this.getBlockHash(blockheight);
+
+    return knex('Jobs')
+      .where({ id: id })
+      .update({ registrationtxid: txid, completed: true, blockhash: blockHash })
+      .catch(er => {
+        console.log('error markCompleted', er);
+      });
   }
 }
 

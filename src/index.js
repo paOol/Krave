@@ -6,6 +6,8 @@ let shared = require('./classes/shared').default;
 const conf = require('./../config/config.js');
 const bsock = require('bsock');
 const wid = conf.node.walletID;
+const env = process.env.NODE_ENV || 'development';
+let cost = env == 'production' ? 800000 : 800;
 let walletSocket = bsock.connect(
   conf.node.walletPort,
   conf.node.host,
@@ -43,7 +45,7 @@ io.on('connection', async client => {
       const match = outputs.find(x => x.address === resp.depositAddress);
       if (match) {
         const utxo = match.value;
-        if (utxo < 800000) {
+        if (utxo < cost) {
           msg = {
             success: false,
             status: `${utxo} satoshis was received, but the cost is 0.008 BCH`
