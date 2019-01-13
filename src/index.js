@@ -55,7 +55,7 @@ io.on('connection', async client => {
           await shared.addJob(resp);
           msg = {
             success: true,
-            status: `Success! ${utxo} was received,and your username was reserved`,
+            status: `Success! ${utxo} satoshis was received, and your username was reserved.`,
             txid: txid
           };
         }

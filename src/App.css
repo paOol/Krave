@@ -85,6 +85,10 @@ aside.error {
   color: #e48720;
 }
 .success {
+  padding: 7rem 0;
+  background: #6cab07;
+  border-radius: 5px;
+  margin: 7rem 0;
 }
 .submit {
   margin: 2rem auto;

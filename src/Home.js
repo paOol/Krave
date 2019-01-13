@@ -121,7 +121,7 @@ class Home extends React.Component {
             {numberErr && <aside className="error"> {numberErr}</aside>}
             <small>
               Note: only cash accounts between #{minNumber} and #
-              {minNumber + 800} are available currently
+              {minNumber + 1800} are available currently
             </small>
             <label for="address">Your BCH address</label>
             <input onChange={this.validateForm} id="address" type="text" />
