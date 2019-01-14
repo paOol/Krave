@@ -3,6 +3,7 @@ import axios from 'axios';
 import { QRCode } from 'react-qr-svg';
 import uniqid from 'uniqid';
 import io from 'socket.io-client';
+import localStorage from 'store';
 require('events').EventEmitter.prototype._maxListeners = 100;
 const env = process.env.NODE_ENV || 'development';
 let cost = env == 'production' ? 800000 : 800;
@@ -12,7 +13,7 @@ class Payments extends React.Component {
     uniqid: '',
     socket: '',
     depositAddress: '',
-    socketResponse: ''
+    socketResponse: localStorage.get('response')
   };
   assignUniqid = () => {
     let rand = uniqid();
@@ -54,6 +55,9 @@ class Payments extends React.Component {
       this.generateAddress(uniqid);
 
       socketio.on('bcash', x => {
+        if (x.success) {
+          localStorage.set('response', x);
+        }
         this.setState({
           socketResponse: x
         });
@@ -68,9 +72,13 @@ class Payments extends React.Component {
 
   payWithBadger = amount => {
     let { web4bch, depositAddress, uniqid } = this.state;
-    if (typeof window.web4bch === undefined) {
-      window.open('https://badgerwallet.cash/#/install');
+    if (typeof window.web4bch === 'undefined') {
+      const win = window.open('https://badger.bitcoin.com/', '_blank');
+      win.focus();
     } else {
+      if (!web4bch.bch.defaultAccount) {
+        alert('please unlock your badgerwallet');
+      }
       let transaction = {
         to: depositAddress,
         from: web4bch.bch.defaultAccount,
@@ -143,6 +151,7 @@ class Payments extends React.Component {
 
 class Response extends React.Component {
   refresh = () => {
+    localStorage.remove('response');
     window.location.reload();
   };
   render() {
