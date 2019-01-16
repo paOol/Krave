@@ -109,14 +109,14 @@ class Payments extends React.Component {
         ) : (
           <div className="qr">
             <h2>{`${username}#${number}`} is available! </h2>
-            <QRCode value={depositAddress} style={{ width: 200 }} />
+            <QRCode value={`${depositAddress}?amount=0.008`} style={{ width: 200 }} />
             <p>claim this Cash Account by sending 0.008 BCH to </p>
             <br />
             <a
               onClick={() => {
                 navigator.clipboard.writeText(depositAddress);
               }}
-              href={`${depositAddress}`}
+              href={`${depositAddress}?amount=0.008`}
             >
               {depositAddress}
             </a>
