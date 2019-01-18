@@ -178,7 +178,7 @@ class Response extends React.Component {
 
     if (socketResponse.success) {
       this.props.paymentReceived(socketResponse);
-      this.props.closeSocket();
+      this.props.closeSocket;
       return (
         <div className="success">
           <h2>
