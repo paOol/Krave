@@ -31,51 +31,53 @@ io.on('connection', async client => {
   console.log('connected', client.conn.id);
 
   let resp;
-  client.on('depositAddress', resp => {
-    console.log('client checking', resp);
-    walletSocket.bind('tx', async (wallet, tx) => {
-      console.log('tx received', tx);
-      let txid = tx.hash;
-      let outputs = tx.outputs;
-      let msg;
-
-      if (resp !== undefined) {
-        //console.log('resp', resp);
-        const match = outputs.find(x => x.address === resp.depositAddress);
-        console.log('match', match);
-        if (match) {
-          const utxo = match.value;
-          if (utxo < cost) {
-            msg = {
-              success: false,
-              status: `${utxo} satoshis was received, but the cost is 0.008 BCH`
-            };
-          } else {
-            resp.txid = txid;
-            let valid = await shared.addJob(resp);
-            console.log('valid?', valid);
-            if (!valid.success) {
-              msg = {
-                success: false,
-                status: `${valid}`
-              };
-            } else {
-              msg = {
-                success: true,
-                status: `Success! ${utxo} satoshis was received, and your username was reserved.`,
-                txid: txid
-              };
-            }
-          }
-          client.emit('bcash', msg);
-        }
-      }
-    });
+  client.on('depositAddress', client => {
+    console.log('client checking', client);
+    resp = client;
   });
 
   client.on('disconnect', x => {
     console.log('disconnect x', x);
     walletSocket.close();
+  });
+
+  walletSocket.bind('tx', async (wallet, tx) => {
+    console.log('tx received', tx);
+    let txid = tx.hash;
+    let outputs = tx.outputs;
+    let msg;
+
+    if (resp !== undefined) {
+      //console.log('resp', resp);
+      const match = outputs.find(x => x.address === resp.depositAddress);
+      console.log('match', match);
+      if (match) {
+        const utxo = match.value;
+        if (utxo < cost) {
+          msg = {
+            success: false,
+            status: `${utxo} satoshis was received, but the cost is 0.008 BCH`
+          };
+        } else {
+          resp.txid = txid;
+          let valid = await shared.addJob(resp);
+          console.log('valid?', valid);
+          if (!valid.success) {
+            msg = {
+              success: false,
+              status: `${valid}`
+            };
+          } else {
+            msg = {
+              success: true,
+              status: `Success! ${utxo} satoshis was received, and your username was reserved.`,
+              txid: txid
+            };
+          }
+        }
+        client.emit('bcash', msg);
+      }
+    }
   });
 });
 let currentApp = app;
