@@ -117,13 +117,11 @@ class Shared {
   }
   async addJob(body) {
     let status = await this.validateBody(body);
-    console.log('status', status);
     if (!status.success) {
       return status;
     }
 
     let cheatStatus = await this.antiCheat(body);
-    console.log('cheatStatus', cheatStatus);
     if (!cheatStatus.success) {
       return cheatStatus;
     }
@@ -144,7 +142,11 @@ class Shared {
         delete body.numberErr;
         delete body.addressErr;
         delete body.success;
-        return { msg: `job added for ${body} at block ${registerAt}` };
+        return {
+          msg: `job added for ${body.username}#${
+            body.number
+          } at block ${registerAt}`
+        };
       })
       .catch(er => {
         console.log('error inserting job', er);

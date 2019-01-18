@@ -23,6 +23,14 @@ walletSocket.on('connect', async e => {
     console.log('Wallet - Connection Error:\n', e);
   }
 });
+walletSocket.on('disconnect', async e => {
+  try {
+    console.log('Wallet - closing connection ', wid);
+    await walletSocket.call('leave', wid);
+  } catch (e) {
+    console.log('Wallet - disconnect Error:\n', e);
+  }
+});
 const server = http.createServer(app);
 const io = require('socket.io')(server);
 
@@ -75,7 +83,8 @@ io.on('connection', async client => {
             };
           }
         }
-        client.emit('bcash', msg);
+        resp = '';
+        return client.emit('bcash', msg);
       }
     }
   });
