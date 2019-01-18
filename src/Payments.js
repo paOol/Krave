@@ -33,6 +33,7 @@ class Payments extends React.Component {
         delete obj.success;
         delete obj.txid;
         this.state.socket.emit('depositAddress', obj);
+
         return this.setState({
           depositAddress: x.data
         });
@@ -65,9 +66,11 @@ class Payments extends React.Component {
     }
   }
 
+  closeSocket = () => {
+    console.log('closing', this.state.socket.close());
+  };
   componentWillUnmount() {
-    console.log('closing');
-    this.state.socket.close();
+    //this.state.socket.close();
   }
 
   payWithBadger = amount => {
@@ -96,8 +99,20 @@ class Payments extends React.Component {
 
   render() {
     const { depositAddress, socketResponse } = this.state;
-    const { number, username, paymentReceived } = this.props;
+    let { number, username, paymentReceived, jobStatus } = this.props;
 
+    if (jobStatus !== true) {
+      return (
+        <div className="wrapper centered">
+          <div className="qr">
+            <h2>
+              That username is unavailble or the number is no longer available.
+            </h2>
+            <p>Please edit and try again.</p>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="wrapper centered">
         {socketResponse ? (
@@ -105,11 +120,15 @@ class Payments extends React.Component {
             amount={this.state.amount}
             socketResponse={socketResponse}
             paymentReceived={paymentReceived}
+            closeSocket={this.closeSocket}
           />
         ) : (
           <div className="qr">
             <h2>{`${username}#${number}`} is available! </h2>
-            <QRCode value={`${depositAddress}?amount=0.008`} style={{ width: 200 }} />
+            <QRCode
+              value={`${depositAddress}?amount=0.008`}
+              style={{ width: 200 }}
+            />
             <p>claim this Cash Account by sending 0.008 BCH to </p>
             <br />
             <a
@@ -159,6 +178,7 @@ class Response extends React.Component {
 
     if (socketResponse.success) {
       this.props.paymentReceived(socketResponse);
+      this.props.closeSocket();
       return (
         <div className="success">
           <h2>
