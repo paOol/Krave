@@ -37,7 +37,7 @@ io.on('connection', async client => {
 
   client.on('disconnect', x => {
     console.log('disconnect x', x);
-    walletSocket.close();
+    //walletSocket.close();
   });
 
   walletSocket.bind('tx', async (wallet, tx) => {
@@ -51,7 +51,7 @@ io.on('connection', async client => {
       //console.log('resp', resp);
       const match = outputs.find(x => x.address === resp.depositAddress);
       console.log('match', match);
-      if (match) {
+      if (match !== undefined) {
         const utxo = match.value;
         if (utxo < cost) {
           msg = {
@@ -62,10 +62,10 @@ io.on('connection', async client => {
           resp.txid = txid;
           let valid = await shared.addJob(resp);
           console.log('valid?', valid);
-          if (!valid.success) {
+          if (valid.msg === undefined) {
             msg = {
               success: false,
-              status: `${valid}`
+              status: `${valid.status}`
             };
           } else {
             msg = {

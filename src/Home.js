@@ -114,17 +114,17 @@ class Home extends React.Component {
         </div>
         <div className="container">
           <form>
-            <label for="username">Desired Username</label>
+            <label htmlFor="username">Desired Username</label>
             <input onChange={this.validateForm} id="username" type="text" />
             {usernameErr && <aside className="error"> {usernameErr}</aside>}
-            <label for="number">Desired number</label>
+            <label htmlFor="number">Desired number</label>
             <input onChange={this.validateForm} id="number" type="number" />
             {numberErr && <aside className="error"> {numberErr}</aside>}
             <small>
               Note: only cash accounts between #{minNumber} and #
               {minNumber + 1800} are available currently
             </small>
-            <label for="address">Your BCH address</label>
+            <label htmlFor="address">Your BCH address</label>
             <input onChange={this.validateForm} id="address" type="text" />
             {addressErr && <aside className="error"> {addressErr}</aside>}
           </form>

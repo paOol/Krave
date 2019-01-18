@@ -69,8 +69,9 @@ class Payments extends React.Component {
   closeSocket = () => {
     console.log('closing', this.state.socket.close());
   };
+
   componentWillUnmount() {
-    //this.state.socket.close();
+    this.closeSocket();
   }
 
   payWithBadger = amount => {
@@ -177,7 +178,6 @@ class Response extends React.Component {
     let { socketResponse } = this.props;
 
     if (socketResponse.success) {
-        alert('in response');
       this.props.paymentReceived(socketResponse);
       this.props.closeSocket;
       return (
