@@ -177,6 +177,7 @@ class Response extends React.Component {
     let { socketResponse } = this.props;
 
     if (socketResponse.success) {
+        alert('in response');
       this.props.paymentReceived(socketResponse);
       this.props.closeSocket;
       return (

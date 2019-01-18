@@ -8,7 +8,6 @@ const bsock = require('bsock');
 const wid = conf.node.walletID;
 const env = process.env.NODE_ENV || 'development';
 let cost = env == 'production' ? 800000 : 800;
-require('events').EventEmitter.prototype._maxListeners = 100;
 let walletSocket = bsock.connect(
   conf.node.walletPort,
   conf.node.host,
@@ -43,6 +42,7 @@ io.on('connection', async client => {
 
   walletSocket.bind('tx', async (wallet, tx) => {
     console.log('tx received', tx);
+    console.log('ontx resp', resp);
     let txid = tx.hash;
     let outputs = tx.outputs;
     let msg;
