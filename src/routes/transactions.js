@@ -7,6 +7,17 @@ const jsonParser = bodyParser.json();
 const shared = require('../classes/shared').default;
 const bcash = require('../classes/bcash').default;
 
+router.get('/lookup/:name/:number', (req, res) => {
+  let { name, number } = req.params;
+  let p = shared.lookup(name, number);
+  p.then(x => {
+    return res.status(200).send(x);
+  }).catch(err => {
+    console.log('err', err);
+    return res.status(500).send(err);
+  });
+});
+
 router.get('/blockheight', (req, res) => {
   let p = bcash.getBlockCount();
   p.then(x => {

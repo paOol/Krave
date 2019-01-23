@@ -6,6 +6,7 @@ const cashaddr = require('cashaddrjs');
 const bchaddr = require('bchaddrjs');
 const config = require('../../knexfile.js');
 const knex = require('knex')(config);
+const axios = require('axios');
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -24,6 +25,68 @@ const bchNode = new bchRPC(
 const genesisBlock = 563720;
 
 class Shared {
+  async lookup(name, number) {
+    let data = await axios
+      .get(`http://api.cashaccount.info/lookup/${number}/${name}`)
+      .then(x => {
+        return x.data;
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
+    if (data === undefined) {
+      return { error: 'no matching account' };
+    }
+    if (data.results.length > 1) {
+      return { error: 'multiple collisions with that account' };
+    }
+
+    let tx = await bchNode.decodeRawTransaction(data.results[0].transaction);
+
+    let opreturn = tx.vout
+      .find(x => x.scriptPubKey.type === 'nulldata')
+      .scriptPubKey.asm.split(' ');
+
+    let addr = this.determineAddress(opreturn[3]);
+
+    return { address: addr };
+  }
+
+  determineAddress(payload) {
+    let type = payload.substring(0, 2);
+    let hash = Buffer.from(payload.substring(2), 'hex');
+    let address;
+
+    switch (type) {
+      case '01':
+        address = new bch.Address(
+          hash,
+          'livenet',
+          'pubkeyhash'
+        ).toCashAddress();
+        break;
+
+      case '02':
+        address = new bch.Address(
+          hash,
+          'livenet',
+          'scripthash'
+        ).toCashAddress();
+        break;
+
+      case '03':
+        address = bch.encoding.Base58Check.encode(
+          Buffer.concat([Buffer.from('47', 'hex'), hash])
+        );
+        break;
+
+      case '04':
+        address = 'eth_usd';
+        break;
+    }
+    return address;
+  }
+
   async calculateDiff(current) {
     let currentHeight = await bchNode.getBlockCount();
 

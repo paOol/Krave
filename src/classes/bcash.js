@@ -2,7 +2,6 @@ const conf = require('../../config/config.js');
 const env = process.env.NODE_ENV || 'development';
 const config = require('../../knexfile.js');
 const knex = require('knex')(config);
-const axios = require('axios');
 const shared = require('./shared').default;
 const schedule = require('node-schedule');
 
