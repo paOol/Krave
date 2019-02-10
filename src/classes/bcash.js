@@ -437,7 +437,7 @@ class Bcash {
   }
 
   async markCompleted(id, txid) {
-    console.log('in marked completed', blockHash);
+    console.log('in marked completed');
     return knex('Jobs')
       .where({ id: id })
       .update({ registrationtxid: txid, completed: true })
