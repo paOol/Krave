@@ -357,10 +357,12 @@ class Bcash {
       if (x.blockheight == currentHeight + 1) {
         console.log('registering', x);
         if (x.paidwithtxid !== undefined || x.paidwithtxid !== null) {
-          let txid = await this.createCashAccount(x.address, x.username);
-          console.log('registered', `${x.username}#${x.number}`, txid);
-          if (typeof txid === 'string') {
-            this.markCompleted(x.id, txid);
+          if (!x.completed) {
+            let txid = await this.createCashAccount(x.address, x.username);
+            console.log('registered', `${x.username}#${x.number}`, txid);
+            if (typeof txid === 'string') {
+              this.markCompleted(x.id, txid);
+            }
           }
         }
       }
