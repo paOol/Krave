@@ -37,7 +37,7 @@ class Bcash {
     }
   }
   async run() {
-    schedule.scheduleJob('0-59/12 * * * * *', () => {
+    schedule.scheduleJob('0-59/2 * * * * *', () => {
       this.registerJobs();
       //console.log('ran registerJobs on  ', Date());
     });
@@ -355,14 +355,18 @@ class Bcash {
 
     jobs.map(async x => {
       if (x.blockheight == currentHeight + 1) {
-        //console.log('registering', x);
+        console.log('registering', x);
         if (x.paidwithtxid !== undefined || x.paidwithtxid !== null) {
           let txid = await this.createCashAccount(x.address, x.username);
           console.log('registered', `${x.username}#${x.number}`, txid);
           if (typeof txid === 'string') {
-            this.markCompleted(x.id, txid, currentHeight);
+            this.markCompleted(x.id, txid);
           }
         }
+      }
+      if (x.blockheight == currentHeight) {
+        console.log('updated blockhash', `${x.username}#${x.number}`);
+        this.updateBlockHash(x.id, currentHeight);
       }
     });
   }
@@ -371,7 +375,7 @@ class Bcash {
     const currentHeight = await this.getBlockCount();
     return knex('Jobs')
       .where('blockheight', '>', currentHeight)
-      .where({ completed: false })
+      .where({ blockhash: null })
       .orderBy('blockheight', 'asc')
       .limit(250)
       .catch(er => {
@@ -422,13 +426,21 @@ class Bcash {
     }
   }
 
-  async markCompleted(id, txid, blockheight) {
-    blockheight = blockheight - 1;
+  async updateBlockHash(id, blockheight) {
     const blockHash = await this.getBlockHash(blockheight);
-
     return knex('Jobs')
       .where({ id: id })
-      .update({ registrationtxid: txid, completed: true, blockhash: blockHash })
+      .update({ blockhash: blockHash })
+      .catch(er => {
+        console.log('error markCompleted', er);
+      });
+  }
+
+  async markCompleted(id, txid) {
+    console.log('in marked completed', blockHash);
+    return knex('Jobs')
+      .where({ id: id })
+      .update({ registrationtxid: txid, completed: true })
       .catch(er => {
         console.log('error markCompleted', er);
       });

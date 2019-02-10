@@ -52,6 +52,22 @@ class Shared {
     return { address: addr };
   }
 
+  async emoji(name, number) {
+    let data = await axios
+      .get(`http://api.cashaccount.info/account/${number}/${name}`)
+      .then(x => {
+        return x.data;
+      })
+      .catch(err => {
+        console.log(err.response);
+      });
+    if (data === undefined) {
+      return { error: 'no matching account' };
+    }
+
+    return data;
+  }
+
   determineAddress(payload) {
     let type = payload.substring(0, 2);
     let hash = Buffer.from(payload.substring(2), 'hex');
@@ -78,10 +94,6 @@ class Shared {
         address = bch.encoding.Base58Check.encode(
           Buffer.concat([Buffer.from('47', 'hex'), hash])
         );
-        break;
-
-      case '04':
-        address = 'eth_usd';
         break;
     }
     return address;

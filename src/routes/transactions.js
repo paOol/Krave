@@ -18,6 +18,17 @@ router.get('/lookup/:name/:number', (req, res) => {
   });
 });
 
+router.get('/emoji/:name/:number', (req, res) => {
+  let { name, number } = req.params;
+  let p = shared.emoji(name, number);
+  p.then(x => {
+    return res.status(200).send(x);
+  }).catch(err => {
+    console.log('err', err);
+    return res.status(500).send(err);
+  });
+});
+
 router.get('/blockheight', (req, res) => {
   let p = bcash.getBlockCount();
   p.then(x => {
