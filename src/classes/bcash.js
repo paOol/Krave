@@ -37,7 +37,7 @@ class Bcash {
     }
   }
   async run() {
-    schedule.scheduleJob('0-59/2 * * * * *', () => {
+    schedule.scheduleJob('0-59/12 * * * * *', () => {
       this.registerJobs();
       //console.log('ran registerJobs on  ', Date());
     });
@@ -354,8 +354,11 @@ class Bcash {
     const jobs = await this.getUncompletedJobs();
 
     jobs.map(async x => {
+      if (x.blockheight == currentHeight) {
+        console.log('updated blockhash', `${x.username}#${x.number}`);
+        this.updateBlockHash(x.id, currentHeight);
+      }
       if (x.blockheight == currentHeight + 1) {
-        console.log('registering', x);
         if (x.paidwithtxid !== undefined || x.paidwithtxid !== null) {
           if (!x.completed) {
             let txid = await this.createCashAccount(x.address, x.username);
@@ -366,17 +369,13 @@ class Bcash {
           }
         }
       }
-      if (x.blockheight == currentHeight) {
-        console.log('updated blockhash', `${x.username}#${x.number}`);
-        this.updateBlockHash(x.id, currentHeight);
-      }
     });
   }
 
   async getUncompletedJobs() {
     const currentHeight = await this.getBlockCount();
     return knex('Jobs')
-      .where('blockheight', '>', currentHeight)
+      .where('blockheight', '>', currentHeight - 1)
       .where({ blockhash: null })
       .orderBy('blockheight', 'asc')
       .limit(250)
