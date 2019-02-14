@@ -50,7 +50,7 @@ io.on('connection', async client => {
 
   walletSocket.bind('tx', async (wallet, tx) => {
     console.log('tx received', tx);
-    console.log('ontx resp', resp);
+    //console.log('ontx resp', resp);
     let txid = tx.hash;
     let outputs = tx.outputs;
     let msg;

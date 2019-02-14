@@ -28,6 +28,9 @@ const wid = conf.node.walletID;
 
 /** Class representing Bcash. */
 
+// bwallet-cli rpc selectwallet (id)
+// all rpc commands will target the selected wallet after
+
 class Bcash {
   constructor() {
     if (!this.wallet) {
@@ -354,7 +357,8 @@ class Bcash {
     const jobs = await this.getUncompletedJobs();
 
     jobs.map(async x => {
-      if (x.blockheight == currentHeight) {
+      // can't get a future blockhash
+      if (x.blockheight <= currentHeight) {
         console.log('updated blockhash', `${x.username}#${x.number}`);
         this.updateBlockHash(x.id, currentHeight);
       }
@@ -374,9 +378,10 @@ class Bcash {
 
   async getUncompletedJobs() {
     const currentHeight = await this.getBlockCount();
+
     return knex('Jobs')
-      .where('blockheight', '>', currentHeight - 1)
-      .where({ blockhash: null })
+      .where('blockheight', '>', currentHeight - 20)
+      .where({ blockhash: null, completed: false })
       .orderBy('blockheight', 'asc')
       .limit(250)
       .catch(er => {

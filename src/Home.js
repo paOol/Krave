@@ -103,8 +103,8 @@ class Home extends React.Component {
       jobs
     } = this.state;
     return (
-      <div className="wrapper">
-        <div className="centered">
+      <div className='wrapper'>
+        <div className='centered'>
           <h1>Krave</h1>
           <h3>
             Cash account numbers go up as each block is mined. Once a
@@ -112,21 +112,21 @@ class Home extends React.Component {
             available to time the one they want. That's where Krave comes in.
           </h3>
         </div>
-        <div className="container">
+        <div className='container'>
           <form>
-            <label htmlFor="username">Desired Username</label>
-            <input onChange={this.validateForm} id="username" type="text" />
-            {usernameErr && <aside className="error"> {usernameErr}</aside>}
-            <label htmlFor="number">Desired number</label>
-            <input onChange={this.validateForm} id="number" type="number" />
-            {numberErr && <aside className="error"> {numberErr}</aside>}
+            <label htmlFor='username'>Desired Username</label>
+            <input onChange={this.validateForm} id='username' type='text' />
+            {usernameErr && <aside className='error'> {usernameErr}</aside>}
+            <label htmlFor='number'>Desired number</label>
+            <input onChange={this.validateForm} id='number' type='number' />
+            {numberErr && <aside className='error'> {numberErr}</aside>}
             <small>
               Note: only cash accounts between #{minNumber} and #
               {minNumber + 1800} are available currently
             </small>
-            <label htmlFor="address">Your BCH address</label>
-            <input onChange={this.validateForm} id="address" type="text" />
-            {addressErr && <aside className="error"> {addressErr}</aside>}
+            <label htmlFor='address'>Your BCH address</label>
+            <input onChange={this.validateForm} id='address' type='text' />
+            {addressErr && <aside className='error'> {addressErr}</aside>}
           </form>
         </div>
         {username !== '' &&
@@ -135,7 +135,7 @@ class Home extends React.Component {
         addressErr === '' &&
         number !== '' &&
         numberErr === '' ? (
-          <div className="submit" onClick={this.checkAvailability}>
+          <div className='submit' onClick={this.checkAvailability}>
             check
           </div>
         ) : (
@@ -159,20 +159,26 @@ class Home extends React.Component {
         <footer>
           <p>
             Ran into an issue? head over to the&nbsp;
-            <a rel="nofollow" target="_blank" href="https://discord.gg/9kACN9t">
+            <a rel='nofollow' target='_blank' href='https://discord.gg/9kACN9t'>
               Discord Chat
             </a>
           </p>
           <p>
-            Krave is{' '}
+            Krave is&nbsp;
             <a
-              rel="nofollow"
-              target="_blank"
-              href="https://github.com/paOol/Krave"
+              rel='nofollow'
+              target='_blank'
+              href='https://github.com/paOol/Krave'
             >
               Open Source
             </a>
           </p>
+
+          <small>
+            Disclaimer: No service can guarantee the desired number, including
+            Krave. This is due to some miners not minig OP_RETURN transactions,
+            which is required for a cash account to be considered valid.
+          </small>
         </footer>
       </div>
     );
