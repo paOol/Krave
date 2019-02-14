@@ -360,7 +360,7 @@ class Bcash {
       // can't get a future blockhash
       if (x.blockheight <= currentHeight) {
         console.log('updated blockhash', `${x.username}#${x.number}`);
-        this.updateBlockHash(x.id, currentHeight);
+        this.updateBlockHash(x.id, x.blockheight);
       }
       if (x.blockheight == currentHeight + 1) {
         if (x.paidwithtxid !== undefined || x.paidwithtxid !== null) {
