@@ -377,16 +377,18 @@ class Bcash {
   }
 
   async getUncompletedJobs() {
-    const currentHeight = await this.getBlockCount();
+    // const currentHeight = await this.getBlockCount();
 
-    return knex('Jobs')
-      .where('blockheight', '>', currentHeight - 20)
-      .where({ blockhash: null, completed: false })
-      .orderBy('blockheight', 'asc')
-      .limit(250)
-      .catch(er => {
-        console.log('error getUncompletedJobs', er);
-      });
+    return (
+      knex('Jobs')
+        //.where('blockheight', '>', currentHeight - 20)
+        .where({ blockhash: null })
+        .orderBy('blockheight', 'asc')
+        .limit(250)
+        .catch(er => {
+          console.log('error getUncompletedJobs', er);
+        })
+    );
   }
 
   async checkJob(body) {
