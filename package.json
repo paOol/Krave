@@ -1,6 +1,6 @@
 {
   "name": "Krave",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "scripts": {
     "start": "razzle start",
@@ -11,7 +11,7 @@
     "migrateproduction": "NODE_ENV=production knex migrate:latest"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "base58check": "^2.0.0",
     "bcash": "^1.1.0",
     "bchaddrjs": "^0.3.0",
@@ -29,6 +29,7 @@
     "react-dom": "16.7.0",
     "react-qr-svg": "^2.1.0",
     "react-router-dom": "4.3.1",
+    "slpjs": "^0.15.12",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0",
     "store": "^2.0.12",
